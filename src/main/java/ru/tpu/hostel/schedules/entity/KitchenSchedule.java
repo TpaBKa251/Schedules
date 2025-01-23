@@ -27,4 +27,10 @@ public class KitchenSchedule {
 
     @Column(name = "room_number", nullable = false)
     private String roomNumber;
+
+    @Column(name = "checked", nullable = false)
+    private Boolean checked;
+
+    @Column(name = "schedule_number", nullable = false)
+    private Integer scheduleNumber;
 }

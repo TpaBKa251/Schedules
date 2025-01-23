@@ -29,4 +29,9 @@ public class RoomsConfig {
                 "5", fifthFloor
         );
     }
+
+    // TODO сделать нормальную загрузку списка этажей из конфига
+    public List<String> getAllFloors() {
+        return List.of("2", "3", "4", "5");
+    }
 }
