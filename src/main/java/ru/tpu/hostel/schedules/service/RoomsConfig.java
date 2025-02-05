@@ -30,7 +30,7 @@ public class RoomsConfig {
         );
     }
 
-    // TODO сделать нормальную загрузку списка этажей из конфига
+    // TODO сделать НОРМАЛЬНУЮ загрузку списка этажей из конфига
     public List<String> getAllFloors() {
         return List.of("2", "3", "4", "5");
     }

@@ -14,10 +14,10 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Component
-@FeignClient(name = "notification-notificationservice", url = "http://notificationservice:8080")
+@FeignClient(name = "notifications-notificationservice", url = "http://notificationservice:8080")
 public interface NotificationClient {
 
-    @PostMapping
+    @PostMapping("/notifications")
     ResponseEntity<?> createNotification(@Valid @RequestBody NotificationRequestDto notificationRequestDto);
 
     record NotificationRequestDto(
