@@ -14,8 +14,8 @@ jobs:
           COMMENTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
 
-          # Проверяем, есть ли незавершённые задачи
-          if echo "$COMMENTS" | grep -q '- [ ]'; then
+          # Проверяем, есть ли незавершённые задачи (ищем "- [ ]" в комментариях)
+          if echo "$COMMENTS" | grep -q '\- \[ \]'; then
             echo "Есть незавершённые задачи!"
             exit 1
           else
