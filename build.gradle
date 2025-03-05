@@ -3,6 +3,8 @@ plugins {
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.owasp.dependencycheck' version '8.3.1'
+    id "org.sonarqube" version "6.0.1.5171"
+    id 'jacoco'
 }
 
 group = 'ru.tpu.hostel'
@@ -22,6 +24,19 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "TpaBKa251_Schedules" // Замените на ключ вашего проекта в SonarCloud
+        property "sonar.organization", "hostel-service" // Замените на имя вашей организации
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.login", System.getenv("SONAR_TOKEN") // Используется токен из секретов GitHub
+        property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
+        property "sonar.coverage.exclusions", "**/*Generated*.java,**/model/*.java" // Исключения из анализа
+        property "sonar.java.binaries", "build/classes/java/main" // Путь к скомпилированным классам
+        property "sonar.exclusions", "**/TimeSlotSchedulesConfig.java"
+    }
 }
 
 dependencies {
@@ -66,6 +81,20 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // Генерируем отчет после тестов
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required.set(true) // Включаем XML для SonarCloud
+        html.required.set(false)
+        csv.required.set(false)
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.11" // Последняя версия
 }
 
 jar {

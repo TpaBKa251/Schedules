@@ -1,21 +1,23 @@
 package ru.tpu.hostel.schedules.schedules;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.Data;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Getter
-@Setter
-public class SchedulesConfig {
+// sonar-ignore-file
+@Data
+public class TimeSlotSchedulesConfig {
 
     private Map<String, Schedule> schedules;
 
-    @Getter
-    @Setter
+    @Data
     public static class Schedule {
         private String type;
         private int limit;
@@ -27,18 +29,23 @@ public class SchedulesConfig {
         private Map<String, List<TimeRange>> reservedHours;
     }
 
-    @Getter
-    @Setter
+    @Data
     public static class TimeRange {
         private LocalTime start;
         private LocalTime end;
         private boolean endNextDay;
     }
 
-    @Getter
-    @Setter
+    @Data
     public static class BreakConfig {
         private int afterSlots;
         private int breakDurationMinutes;
+    }
+
+    public static TimeSlotSchedulesConfig loadFromFile(String filePath) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        return objectMapper.readValue(new File(filePath), TimeSlotSchedulesConfig.class);
     }
 }
