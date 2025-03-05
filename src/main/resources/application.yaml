@@ -21,3 +21,7 @@ spring:
 springdoc:
   swagger-ui:
     enabled: true
+
+schedules:
+  file:
+    path: src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
