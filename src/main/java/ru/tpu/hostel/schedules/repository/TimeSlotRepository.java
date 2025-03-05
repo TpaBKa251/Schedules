@@ -16,16 +16,16 @@ import java.util.UUID;
 @Repository
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
 
-    @Query
+    @Query("SELECT t FROM TimeSlot t WHERE t.type = :eventType ORDER BY t.startTime DESC LIMIT 1")
     Optional<TimeSlot> findLastByType(EventType eventType);
 
     List<TimeSlot> findByType(EventType eventType);
 
     List<TimeSlot> findAllByTypeAndStartTimeAfter(EventType eventType, LocalDateTime startTime);
 
-    @Query
-    Optional<LocalDateTime> findOneByTypeAndStartTimeOnSpecificDay(
+    @Query("SELECT t.startTime FROM TimeSlot t WHERE t.type = :type AND t.startTime >= :startDate AND t.startTime < :endDate ORDER BY t.startTime LIMIT 1")
+    Optional<LocalDateTime> findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
             @Param("type") EventType eventType,
             @Param("startDate") LocalDateTime startTime,
-            @Param("endDate") LocalDate endDate);
+            @Param("endDate") LocalDateTime endDate);
 }
