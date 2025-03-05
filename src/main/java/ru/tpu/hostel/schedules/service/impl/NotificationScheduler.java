@@ -1,16 +1,15 @@
-package ru.tpu.hostel.schedules.service;
+package ru.tpu.hostel.schedules.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.schedules.client.NotificationClient;
 import ru.tpu.hostel.schedules.client.UserServiceClient;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 import ru.tpu.hostel.schedules.repository.KitchenSchedulesRepository;
+import ru.tpu.hostel.schedules.service.RoomsConfig;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
