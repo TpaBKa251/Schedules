@@ -16,11 +16,9 @@ import ru.tpu.hostel.schedules.enums.EventType;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Testcontainers
@@ -81,9 +79,9 @@ class TimeSlotRepositoryTest {
                 EventType.GYM,
                 Data.LIMIT_5);
 
-        Optional<TimeSlot> timeSlot = timeSlotRepository.findLastByType(EventType.GYM);
+        TimeSlot timeSlot = timeSlotRepository.findLastByType(EventType.GYM).orElseThrow();
 
-        assertThat(timeSlot.get())
+        assertThat(timeSlot)
                 .usingRecursiveComparison()
                 .ignoringFields("id")
                 .isEqualTo(expectedTimeSlot);
@@ -156,12 +154,12 @@ class TimeSlotRepositoryTest {
         LocalDateTime startTime = Data.START_TIME;
         LocalDateTime endTime = Data.END_TIME;
 
-        Optional<LocalDateTime> time = timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
+        LocalDateTime time = timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
                 EventType.GYM,
                 startTime,
-                endTime);
+                endTime).orElseThrow();
 
-        assertTrue(time.isPresent());
-        assertEquals(Data.TIME_GYM_1, time.get());
+
+        assertEquals(Data.TIME_GYM_1, time);
     }
 }
