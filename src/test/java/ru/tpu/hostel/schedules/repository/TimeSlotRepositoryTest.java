@@ -10,6 +10,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import ru.tpu.hostel.schedules.Data;
 import ru.tpu.hostel.schedules.entity.TimeSlot;
 import ru.tpu.hostel.schedules.enums.EventType;
 
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // Отключаем встраиваемую БД
-public class TimeSlotRepositoryTest {
+class TimeSlotRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
@@ -45,39 +46,39 @@ public class TimeSlotRepositoryTest {
     void setUp() {
         timeSlotRepository.deleteAll();
 
-        timeSlotRepository.save(getNewTimeSlot(
-                LocalDateTime.of(2025, 3, 10, 9, 0),
-                LocalDateTime.of(2025, 3, 10, 10, 30),
+        timeSlotRepository.save(Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
                 EventType.GYM,
-                5)
+                Data.LIMIT_5)
         );
-        timeSlotRepository.save(getNewTimeSlot(
-                LocalDateTime.of(2025, 3, 10, 10, 30),
-                LocalDateTime.of(2025, 3, 10, 12, 0),
+        timeSlotRepository.save(Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
                 EventType.GYM,
-                5)
+                Data.LIMIT_5)
         );
-        timeSlotRepository.save(getNewTimeSlot(
-                LocalDateTime.of(2025, 3, 10, 12, 0),
-                LocalDateTime.of(2025, 3, 10, 13, 30),
+        timeSlotRepository.save(Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_13, Data.MINUTE_30),
                 EventType.GYM,
-                5)
+                Data.LIMIT_5)
         );
-        timeSlotRepository.save(getNewTimeSlot(
-                LocalDateTime.of(2025, 5, 11, 13, 30),
-                LocalDateTime.of(2025, 5, 11, 15, 0),
+        timeSlotRepository.save(Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_13, Data.MINUTE_30),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_15, Data.MINUTE_0),
                 EventType.KITCHEN,
-                2)
+                Data.LIMIT_2)
         );
     }
 
     @Test
     void testFindLastByType() {
-        TimeSlot testTimeSlot = getNewTimeSlot(
-                LocalDateTime.of(2025, 3, 10, 12, 0),
-                LocalDateTime.of(2025, 3, 10, 13, 30),
+        TimeSlot testTimeSlot = Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_13, Data.MINUTE_30),
                 EventType.GYM,
-                5);
+                Data.LIMIT_5);
 
         Optional<TimeSlot> timeSlot = timeSlotRepository.findLastByType(EventType.GYM);
 
@@ -90,11 +91,11 @@ public class TimeSlotRepositoryTest {
 
     @Test
     void testFindByTypeWithSingleTimeSlot() {
-        TimeSlot testTimeSlot = getNewTimeSlot(
-                LocalDateTime.of(2025, 5, 11, 13, 30),
-                LocalDateTime.of(2025, 5, 11, 15, 0),
+        TimeSlot testTimeSlot = Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_13, Data.MINUTE_30),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_15, Data.MINUTE_0),
                 EventType.KITCHEN,
-                2);
+                Data.LIMIT_2);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findByType(EventType.KITCHEN);
 
@@ -104,11 +105,11 @@ public class TimeSlotRepositoryTest {
 
     @Test
     void testFindByTypeWithSomeTimeSlots() {
-        TimeSlot testTimeSlot = getNewTimeSlot(
-                LocalDateTime.of(2025, 3, 10, 9, 0),
-                LocalDateTime.of(2025, 3, 10, 10, 30),
+        TimeSlot testTimeSlot = Data.getNewTimeSlot(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
                 EventType.GYM,
-                5);
+                Data.LIMIT_5);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findByType(EventType.GYM);
 
@@ -118,7 +119,12 @@ public class TimeSlotRepositoryTest {
 
     @Test
     void testFindAllByTypeAndStartTimeAfter() {
-        LocalDateTime startTime = LocalDateTime.of(2025, 3, 10, 10, 30);
+        LocalDateTime startTime = LocalDateTime.of(
+                Data.YEAR_2025,
+                Data.MONTH_3,
+                Data.DAY_10,
+                Data.HOUR_10,
+                Data.MINUTE_30);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findAllByTypeAndStartTimeAfter(EventType.GYM, startTime);
 
@@ -127,8 +133,8 @@ public class TimeSlotRepositoryTest {
 
     @Test
     void testFindEarlierStartTimeByTypeAndStartTimeOnSpecificDay() {
-        LocalDateTime startTime = LocalDateTime.of(2020, 1, 1, 0, 0);
-        LocalDateTime endTime = LocalDateTime.of(2026, 1, 1, 0, 0);
+        LocalDateTime startTime = LocalDateTime.of(Data.YEAR_2020, Data.MONTH_1, Data.DAY_1, Data.HOUR_0, Data.MINUTE_0);
+        LocalDateTime endTime = LocalDateTime.of(Data.YEAR_2026, Data.MONTH_1, Data.DAY_1, Data.HOUR_0, Data.MINUTE_0);
 
         Optional<LocalDateTime> time =
                 timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
@@ -137,15 +143,8 @@ public class TimeSlotRepositoryTest {
                         endTime);
 
         assertTrue(time.isPresent());
-        assertEquals(LocalDateTime.of(2025, 3, 10, 9, 0), time.get());
-    }
-
-    private TimeSlot getNewTimeSlot(LocalDateTime startTime, LocalDateTime endTime, EventType eventType, Integer limit) {
-        TimeSlot timeSlot = new TimeSlot();
-        timeSlot.setStartTime(startTime);
-        timeSlot.setEndTime(endTime);
-        timeSlot.setType(eventType);
-        timeSlot.setLimit(limit);
-        return timeSlot;
+        assertEquals(
+                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
+                time.get());
     }
 }

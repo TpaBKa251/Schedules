@@ -8,8 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import ru.tpu.hostel.schedules.enums.EventType;
 
 import java.time.LocalDateTime;
@@ -17,8 +16,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "time_slots", schema = "schedules")
-@Getter
-@Setter
+@Data
 public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
