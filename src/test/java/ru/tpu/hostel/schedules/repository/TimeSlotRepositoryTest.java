@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,26 +48,26 @@ class TimeSlotRepositoryTest {
         timeSlotRepository.deleteAll();
 
         timeSlotRepository.save(Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
+                Data.TIME_GYM_1,
+                Data.TIME_GYM_2,
                 EventType.GYM,
                 Data.LIMIT_5)
         );
         timeSlotRepository.save(Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
+                Data.TIME_GYM_2,
+                Data.TIME_GYM_3,
                 EventType.GYM,
                 Data.LIMIT_5)
         );
         timeSlotRepository.save(Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_13, Data.MINUTE_30),
+                Data.TIME_GYM_3,
+                Data.TIME_GYM_4,
                 EventType.GYM,
                 Data.LIMIT_5)
         );
         timeSlotRepository.save(Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_13, Data.MINUTE_30),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_15, Data.MINUTE_0),
+                Data.TIME_KITCHEN_1,
+                Data.TIME_KITCHEN_2,
                 EventType.KITCHEN,
                 Data.LIMIT_2)
         );
@@ -74,77 +75,93 @@ class TimeSlotRepositoryTest {
 
     @Test
     void testFindLastByType() {
-        TimeSlot testTimeSlot = Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_12, Data.MINUTE_0),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_13, Data.MINUTE_30),
+        TimeSlot expectedTimeSlot = Data.getNewTimeSlot(
+                Data.TIME_GYM_3,
+                Data.TIME_GYM_4,
                 EventType.GYM,
                 Data.LIMIT_5);
 
         Optional<TimeSlot> timeSlot = timeSlotRepository.findLastByType(EventType.GYM);
 
-        assertTrue(timeSlot.isPresent());
-        assertEquals(testTimeSlot.getStartTime(), timeSlot.get().getStartTime());
-        assertEquals(testTimeSlot.getEndTime(), timeSlot.get().getEndTime());
-        assertEquals(testTimeSlot.getType(), timeSlot.get().getType());
-        assertEquals(testTimeSlot.getLimit(), timeSlot.get().getLimit());
+        assertThat(timeSlot.get())
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(expectedTimeSlot);
     }
 
     @Test
     void testFindByTypeWithSingleTimeSlot() {
-        TimeSlot testTimeSlot = Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_13, Data.MINUTE_30),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_5, Data.DAY_11, Data.HOUR_15, Data.MINUTE_0),
+        TimeSlot expectedTimeSlot = Data.getNewTimeSlot(
+                Data.TIME_KITCHEN_1,
+                Data.TIME_KITCHEN_2,
                 EventType.KITCHEN,
                 Data.LIMIT_2);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findByType(EventType.KITCHEN);
 
-        assertEquals(1, timeSlots.size());
-        assertEquals(testTimeSlot.getStartTime(), timeSlots.get(0).getStartTime());
+        assertThat(timeSlots)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(List.of(expectedTimeSlot));
     }
 
     @Test
     void testFindByTypeWithSomeTimeSlots() {
-        TimeSlot testTimeSlot = Data.getNewTimeSlot(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_10, Data.MINUTE_30),
+        TimeSlot expectedTimeSlot1 = Data.getNewTimeSlot(
+                Data.TIME_GYM_1,
+                Data.TIME_GYM_2,
+                EventType.GYM,
+                Data.LIMIT_5);
+
+        TimeSlot expectedTimeSlot2 = Data.getNewTimeSlot(
+                Data.TIME_GYM_2,
+                Data.TIME_GYM_3,
+                EventType.GYM,
+                Data.LIMIT_5);
+
+        TimeSlot expectedTimeSlot3 = Data.getNewTimeSlot(
+                Data.TIME_GYM_3,
+                Data.TIME_GYM_4,
                 EventType.GYM,
                 Data.LIMIT_5);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findByType(EventType.GYM);
 
-        assertEquals(3, timeSlots.size());
-        assertEquals(testTimeSlot.getStartTime(), timeSlots.get(0).getStartTime());
+        assertThat(timeSlots)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(List.of(expectedTimeSlot1, expectedTimeSlot2, expectedTimeSlot3));
     }
 
     @Test
     void testFindAllByTypeAndStartTimeAfter() {
-        LocalDateTime startTime = LocalDateTime.of(
-                Data.YEAR_2025,
-                Data.MONTH_3,
-                Data.DAY_10,
-                Data.HOUR_10,
-                Data.MINUTE_30);
+        LocalDateTime startTime = Data.TIME_GYM_2;
+
+        TimeSlot expectedTimeSlot = Data.getNewTimeSlot(
+                Data.TIME_GYM_3,
+                Data.TIME_GYM_4,
+                EventType.GYM,
+                Data.LIMIT_5);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findAllByTypeAndStartTimeAfter(EventType.GYM, startTime);
 
-        assertEquals(1, timeSlots.size());
+        assertThat(timeSlots)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(List.of(expectedTimeSlot));
     }
 
     @Test
     void testFindEarlierStartTimeByTypeAndStartTimeOnSpecificDay() {
-        LocalDateTime startTime = LocalDateTime.of(Data.YEAR_2020, Data.MONTH_1, Data.DAY_1, Data.HOUR_0, Data.MINUTE_0);
-        LocalDateTime endTime = LocalDateTime.of(Data.YEAR_2026, Data.MONTH_1, Data.DAY_1, Data.HOUR_0, Data.MINUTE_0);
+        LocalDateTime startTime = Data.START_TIME;
+        LocalDateTime endTime = Data.END_TIME;
 
-        Optional<LocalDateTime> time =
-                timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
-                        EventType.GYM,
-                        startTime,
-                        endTime);
+        Optional<LocalDateTime> time = timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
+                EventType.GYM,
+                startTime,
+                endTime);
 
         assertTrue(time.isPresent());
-        assertEquals(
-                LocalDateTime.of(Data.YEAR_2025, Data.MONTH_3, Data.DAY_10, Data.HOUR_9, Data.MINUTE_0),
-                time.get());
+        assertEquals(Data.TIME_GYM_1, time.get());
     }
 }

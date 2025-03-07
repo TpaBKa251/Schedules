@@ -25,8 +25,62 @@ public class Data {
     public static final int MINUTE_30 = 30;
     public static final int LIMIT_2 = 2;
     public static final int LIMIT_5 = 5;
+    public static final LocalDateTime TIME_GYM_1 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_3,
+            Data.DAY_10,
+            Data.HOUR_9,
+            Data.MINUTE_0);
+    public static final LocalDateTime TIME_GYM_2 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_3,
+            Data.DAY_10,
+            Data.HOUR_10,
+            Data.MINUTE_30);
+    public static final LocalDateTime TIME_GYM_3 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_3,
+            Data.DAY_10,
+            Data.HOUR_12,
+            Data.MINUTE_0);
+    public static final LocalDateTime TIME_GYM_4 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_3,
+            Data.DAY_10,
+            Data.HOUR_13,
+            Data.MINUTE_30);
+    public static final LocalDateTime TIME_KITCHEN_1 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_5,
+            Data.DAY_11,
+            Data.HOUR_13,
+            Data.MINUTE_30);
+    public static final LocalDateTime TIME_KITCHEN_2 = LocalDateTime.of(
+            Data.YEAR_2025,
+            Data.MONTH_5,
+            Data.DAY_11,
+            Data.HOUR_15,
+            Data.MINUTE_0);
+    public static final LocalDateTime START_TIME = LocalDateTime.of(
+            Data.YEAR_2020,
+            Data.MONTH_1,
+            Data.DAY_1,
+            Data.HOUR_0,
+            Data.MINUTE_0);
+    public static final LocalDateTime END_TIME = LocalDateTime.of(
+            Data.YEAR_2026,
+            Data.MONTH_1,
+            Data.DAY_1,
+            Data.HOUR_0,
+            Data.MINUTE_0);
 
-    public static TimeSlot getNewTimeSlot(LocalDateTime startTime, LocalDateTime endTime, EventType eventType, Integer limit) {
+
+    public static TimeSlot getNewTimeSlot(
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            EventType eventType,
+            Integer limit
+    ) {
         TimeSlot timeSlot = new TimeSlot();
         timeSlot.setStartTime(startTime);
         timeSlot.setEndTime(endTime);
