@@ -1,0 +1,2663 @@
+[
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        7,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        7,
+        45
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        7,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        8,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        8,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        9,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        9,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        10,
+        15
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        7,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        7,
+        45
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        7,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        8,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        10,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        10,
+        45
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        7,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        7,
+        45
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        7,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        8,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        8,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        9,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        9,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        10,
+        15
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        7,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        7,
+        45
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        7,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        8,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        8,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        9,
+        30
+      ],
+      "type": "GYM",
+      "limit": 8
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        9,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        10,
+        15
+      ],
+      "type": "GYM",
+      "limit": 8
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        23,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        23,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        23,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        0,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        0,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        0,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        0,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        1,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        1,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        1,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        1,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        2,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        23,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        23,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        23,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        0,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        0,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        0,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        0,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        1,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        1,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        1,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        1,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        2,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        23,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        23,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        23,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        0,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        0,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        0,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        0,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        1,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        1,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        1,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        1,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        2,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        23,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        23,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        23,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        25,
+        0,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        25,
+        0,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        25,
+        0,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        25,
+        0,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        25,
+        1,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        25,
+        1,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        25,
+        1,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        25,
+        1,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        25,
+        2,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        14,
+        0
+      ],
+      "type": "HALL",
+      "limit": 15
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        16,
+        30
+      ],
+      "type": "HALL",
+      "limit": 15
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        14,
+        0
+      ],
+      "type": "HALL",
+      "limit": 15
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        16,
+        30
+      ],
+      "type": "HALL",
+      "limit": 15
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        17,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        19,
+        0
+      ],
+      "type": "HALL",
+      "limit": 15
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        16,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 10
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        17,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        18,
+        20
+      ],
+      "type": "GYM",
+      "limit": 10
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        18,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        19,
+        40
+      ],
+      "type": "GYM",
+      "limit": 10
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        16,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 10
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        19,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        20,
+        0
+      ],
+      "type": "GYM",
+      "limit": 10
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        18,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        18,
+        45
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        18,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        19,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        19,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        20,
+        15
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        20,
+        25
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        21,
+        10
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        21,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        21,
+        55
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        21,
+        55
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        22,
+        40
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        22,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        23,
+        35
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        18,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        18,
+        45
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        18,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        19,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        19,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        20,
+        15
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        20,
+        25
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        21,
+        10
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        21,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        21,
+        55
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        23,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        23,
+        45
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        18,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        18,
+        45
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        18,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        19,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        19,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        20,
+        15
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        20,
+        25
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        21,
+        10
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        21,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        21,
+        55
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        21,
+        55
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        22,
+        40
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        22,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        23,
+        35
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        9,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        10,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        10,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        12,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        13,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        15,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        15,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        16,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        9,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        10,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        10,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        12,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        12,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        13,
+        50
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        13,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        15,
+        20
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        9,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        10,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        10,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        12,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        12,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        13,
+        50
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        13,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        15,
+        20
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        9,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        10,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        10,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        12,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        13,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        15,
+        0
+      ],
+      "type": "HALL",
+      "limit": 20
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        15,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        16,
+        30
+      ],
+      "type": "HALL",
+      "limit": 20
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        12,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        12,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        13,
+        40
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        13,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        14,
+        30
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        15,
+        20
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        15,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        16,
+        10
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        16,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        17,
+        17,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        17,
+        17,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        12,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        12,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        13,
+        40
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        13,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        14,
+        30
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        15,
+        20
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        15,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        16,
+        10
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        16,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        18,
+        17,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        18,
+        17,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        12,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        12,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        13,
+        40
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        13,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        14,
+        30
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        15,
+        20
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        15,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        16,
+        10
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        16,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        17,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        17,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        12,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        12,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        13,
+        40
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        13,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        14,
+        30
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        16,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        17,
+        20
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        12,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        12,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        12,
+        50
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        13,
+        40
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        13,
+        40
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        14,
+        30
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        14,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        15,
+        20
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        15,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        16,
+        10
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        16,
+        10
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        17,
+        0
+      ],
+      "type": "GYM",
+      "limit": 6
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        17,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        17,
+        50
+      ],
+      "type": "GYM",
+      "limit": 6
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        20,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        21,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        21,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        22,
+        0
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        22,
+        15
+      ],
+      "endTime": [
+        2025,
+        3,
+        23,
+        23,
+        15
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        23,
+        23,
+        15
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        0,
+        15
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        0,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        1,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        1,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        2,
+        30
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        24,
+        2,
+        45
+      ],
+      "endTime": [
+        2025,
+        3,
+        24,
+        3,
+        45
+      ],
+      "type": "INTERNET",
+      "limit": 1
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        10,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        12,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        13,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        15,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        16,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        18,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        20,
+        19,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        20,
+        21,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        10,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        12,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        13,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        15,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        16,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        18,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        21,
+        19,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        21,
+        21,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        10,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        12,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        13,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        15,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        16,
+        0
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        18,
+        30
+      ],
+      "type": "HALL",
+      "limit": 12
+    }
+  ],
+  [
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        8,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        9,
+        45
+      ],
+      "type": "GYM",
+      "limit": 4
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        9,
+        55
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        11,
+        10
+      ],
+      "type": "GYM",
+      "limit": 4
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        19,
+        11,
+        20
+      ],
+      "endTime": [
+        2025,
+        3,
+        19,
+        12,
+        35
+      ],
+      "type": "GYM",
+      "limit": 4
+    },
+    {
+      "id": null,
+      "startTime": [
+        2025,
+        3,
+        22,
+        8,
+        30
+      ],
+      "endTime": [
+        2025,
+        3,
+        22,
+        9,
+        45
+      ],
+      "type": "GYM",
+      "limit": 4
+    }
+  ]
+]

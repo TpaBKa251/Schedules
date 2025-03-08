@@ -1,0 +1,285 @@
+[
+  {
+    "schedules": {
+      "gym": {
+        "type": "GYM",
+        "limit": 8,
+        "workingDays": [
+          "Monday",
+          "Wednesday",
+          "Friday"
+        ],
+        "workingHours": {
+          "start": "07:00",
+          "end": "11:00"
+        },
+        "slotDurationMinutes": 45,
+        "breaks": {
+          "afterSlots": 2,
+          "breakDurationMinutes": 15
+        },
+        "reservedHours": {
+          "WEDNESDAY": [
+            {
+              "start": "09:00",
+              "end": "10:00"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "internet": {
+        "type": "INTERNET",
+        "limit": 1,
+        "workingDays": [
+          "Monday",
+          "Tuesday",
+          "Thursday"
+        ],
+        "workingHours": {
+          "start": "23:00",
+          "end": "02:00",
+          "endNextDay": true
+        },
+        "slotDurationMinutes": 30,
+        "breaks": {
+          "afterSlots": 0
+        },
+        "reservedHours": {}
+      }
+    }
+  },
+  {
+    "schedules": {
+      "hall": {
+        "type": "HALL",
+        "limit": 15,
+        "workingDays": [
+          "Saturday",
+          "Sunday"
+        ],
+        "workingHours": {
+          "start": "12:00",
+          "end": "20:00"
+        },
+        "slotDurationMinutes": 120,
+        "breaks": {
+          "afterSlots": 1,
+          "breakDurationMinutes": 30
+        },
+        "reservedHours": {
+          "SATURDAY": [
+            {
+              "start": "18:00",
+              "end": "19:00"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "gym": {
+        "type": "GYM",
+        "limit": 10,
+        "workingDays": [
+          "Tuesday",
+          "Thursday"
+        ],
+        "workingHours": {
+          "start": "16:00",
+          "end": "20:00"
+        },
+        "slotDurationMinutes": 60,
+        "breaks": {
+          "afterSlots": 1,
+          "breakDurationMinutes": 20
+        },
+        "reservedHours": {
+          "THURSDAY": [
+            {
+              "start": "18:00",
+              "end": "19:00"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "internet": {
+        "type": "INTERNET",
+        "limit": 1,
+        "workingDays": [
+          "Wednesday",
+          "Friday",
+          "Saturday"
+        ],
+        "workingHours": {
+          "start": "18:00",
+          "end": "00:00",
+          "endNextDay": true
+        },
+        "slotDurationMinutes": 45,
+        "breaks": {
+          "afterSlots": 3,
+          "breakDurationMinutes": 10
+        },
+        "reservedHours": {
+          "FRIDAY": [
+            {
+              "start": "22:00",
+              "end": "23:00"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "hall": {
+        "type": "HALL",
+        "limit": 20,
+        "workingDays": [
+          "Monday",
+          "Wednesday",
+          "Friday"
+        ],
+        "workingHours": {
+          "start": "09:00",
+          "end": "17:00"
+        },
+        "slotDurationMinutes": 90,
+        "breaks": {
+          "afterSlots": 2,
+          "breakDurationMinutes": 20
+        },
+        "reservedHours": {
+          "MONDAY": [
+            {
+              "start": "12:00",
+              "end": "13:30"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "gym": {
+        "type": "GYM",
+        "limit": 6,
+        "workingDays": [
+          "Monday",
+          "Tuesday",
+          "Thursday",
+          "Friday"
+        ],
+        "workingHours": {
+          "start": "12:00",
+          "end": "18:00"
+        },
+        "slotDurationMinutes": 50,
+        "breaks": {
+          "afterSlots": 0
+        },
+        "reservedHours": {
+          "FRIDAY": [
+            {
+              "start": "15:00",
+              "end": "16:30"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "internet": {
+        "type": "INTERNET",
+        "limit": 1,
+        "workingDays": [
+          "Sunday"
+        ],
+        "workingHours": {
+          "start": "20:00",
+          "end": "04:00",
+          "endNextDay": true
+        },
+        "slotDurationMinutes": 60,
+        "breaks": {
+          "afterSlots": 2,
+          "breakDurationMinutes": 15
+        },
+        "reservedHours": {}
+      }
+    }
+  },
+  {
+    "schedules": {
+      "hall": {
+        "type": "HALL",
+        "limit": 12,
+        "workingDays": [
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "workingHours": {
+          "start": "10:00",
+          "end": "22:00"
+        },
+        "slotDurationMinutes": 150,
+        "breaks": {
+          "afterSlots": 1,
+          "breakDurationMinutes": 30
+        },
+        "reservedHours": {
+          "SATURDAY": [
+            {
+              "start": "19:00",
+              "end": "21:00"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "schedules": {
+      "gym": {
+        "type": "GYM",
+        "limit": 4,
+        "workingDays": [
+          "Wednesday",
+          "Saturday"
+        ],
+        "workingHours": {
+          "start": "08:30",
+          "end": "13:00"
+        },
+        "slotDurationMinutes": 75,
+        "breaks": {
+          "afterSlots": 1,
+          "breakDurationMinutes": 10
+        },
+        "reservedHours": {
+          "SATURDAY": [
+            {
+              "start": "11:00",
+              "end": "12:00"
+            }
+          ]
+        }
+      }
+    }
+  }
+]
