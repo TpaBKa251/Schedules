@@ -36,9 +36,10 @@ public class TimeSlotGenerator {
      * Файл-конфиг расписания для слотов
      */
     @Value("${schedules.file.path}")
-    private String filePath;
+    private String schedulesFilePath;
 
-    private static final String ERROR_LOG_MESSAGE = "Ошибка загрузки шаблона расписаний. Генерация невозможна";
+    private static final String SCHEDULE_MAPPING_ERROR_LOG_MESSAGE
+            = "Ошибка загрузки шаблона расписаний. Генерация слотов для брони невозможна";
 
     private static final int WEEK = 7;
 
@@ -49,7 +50,7 @@ public class TimeSlotGenerator {
     private final TimeSlotRepository timeSlotRepository;
 
     @Bean
-    public ApplicationRunner initializeGymTimeSlots() {
+    public ApplicationRunner initializeTimeSlots() {
         return args -> generateSlotsForWeek();
     }
 
@@ -57,13 +58,16 @@ public class TimeSlotGenerator {
      * Генерирует слот на последний день (через неделю)
      */
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
-    public void generateMissingSlotsOnLastDay() {
+    public void generateSlotsOnLastDay() {
         TimeSlotSchedulesConfig config;
 
         try {
-            config = TimeSlotSchedulesConfig.loadFromFile(filePath);
+            config = TimeSlotSchedulesConfig.loadFromFile(schedulesFilePath);
+            if (config == null) {
+                throw new IOException();
+            }
         } catch (IOException e) {
-            log.error(ERROR_LOG_MESSAGE, e);
+            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на последний день).", e);
             return;
         }
 
@@ -79,7 +83,7 @@ public class TimeSlotGenerator {
             DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
 
             if (workingDays.contains(currentDayOfWeek)) {
-                List<TimeSlot> dailySlots = generateDailySlots(
+                List<TimeSlot> dailySlots = generateSlotsOnDay(
                         currentDate,
                         reservedHours.get(currentDayOfWeek.name()),
                         schedule
@@ -99,9 +103,12 @@ public class TimeSlotGenerator {
         TimeSlotSchedulesConfig config;
 
         try {
-            config = TimeSlotSchedulesConfig.loadFromFile(filePath);
+            config = TimeSlotSchedulesConfig.loadFromFile(schedulesFilePath);
+            if (config == null) {
+                throw new IOException();
+            }
         } catch (IOException e) {
-            log.error(ERROR_LOG_MESSAGE, e);
+            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на неделю/недостающие).", e);
             return;
         }
 
@@ -124,7 +131,7 @@ public class TimeSlotGenerator {
                 DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
 
                 if (workingDays.contains(currentDayOfWeek)) {
-                    List<TimeSlot> dailySlots = generateDailySlots(
+                    List<TimeSlot> dailySlots = generateSlotsOnDay(
                             currentDate,
                             reservedHours.get(currentDayOfWeek.name()),
                             schedule
@@ -143,12 +150,12 @@ public class TimeSlotGenerator {
     /**
      * Генерирует слоты на один день согласно расписанию
      *
-     * @param date дата, на которую генерируются слоты
+     * @param date          дата, на которую генерируются слоты
      * @param reservedHours зарезервированные часы
-     * @param schedule расписание
+     * @param schedule      расписание
      * @return список слотов на день
      */
-    private List<TimeSlot> generateDailySlots(
+    private List<TimeSlot> generateSlotsOnDay(
             LocalDate date,
             List<TimeSlotSchedulesConfig.TimeRange> reservedHours,
             TimeSlotSchedulesConfig.Schedule schedule
@@ -166,7 +173,7 @@ public class TimeSlotGenerator {
         List<TimeSlot> dailySlots = new ArrayList<>();
         LocalDateTime slotStart = LocalDateTime.of(date, startTime);
         LocalDateTime workingEnd = endNextDay
-                ? LocalDateTime.of(date.plusDays(ONE_DAY), endTime)
+                ? LocalDateTime.of(date.plusDays(1), endTime)
                 : LocalDateTime.of(date, endTime);
         int slotsCounter = 0;
 
@@ -174,7 +181,7 @@ public class TimeSlotGenerator {
                 || slotStart.plusMinutes(slotDuration).equals(workingEnd)) {
             LocalDateTime slotEnd = slotStart.plusMinutes(slotDuration);
 
-            LocalDateTime finalSlotStart = slotStart;
+            final LocalDateTime finalSlotStart = slotStart;
             boolean overlapsReserved = reservedHours != null && reservedHours.stream()
                     .anyMatch(reserved ->
                             isOverlapping(finalSlotStart.toLocalTime(), slotEnd.toLocalTime(), reserved));
@@ -190,10 +197,25 @@ public class TimeSlotGenerator {
                 slotsCounter++;
             }
 
+            TimeSlotSchedulesConfig.TimeRange matchingReserved = null;
+            if (reservedHours != null) {
+                matchingReserved = reservedHours.stream()
+                        .filter(reserved ->
+                                isSlotWithinReservedHours(finalSlotStart.toLocalTime(), slotEnd.toLocalTime(), reserved))
+                        .findFirst()
+                        .orElse(null);
+            }
+
             slotStart = slotEnd;
 
-            if (breaks != null && breaks.getAfterSlots() > 0 && slotsCounter == breaks.getAfterSlots()) {
+            if (breaks != null
+                    && breaks.getAfterSlots() > 0
+                    && slotsCounter == breaks.getAfterSlots()
+                    && matchingReserved == null) {
                 slotStart = slotStart.plusMinutes(breaks.getBreakDurationMinutes());
+                slotsCounter = 0;
+            } else if (matchingReserved != null) {
+                slotStart = LocalDateTime.of(slotStart.toLocalDate(), matchingReserved.getEnd());
                 slotsCounter = 0;
             }
         }
@@ -205,12 +227,29 @@ public class TimeSlotGenerator {
      * Проверяет, не пересекает ли слот зарезервированные часы
      *
      * @param slotStart стартовое время слота
-     * @param slotEnd конечное время слота
-     * @param reserved зарезервированный промежуток времени
+     * @param slotEnd   конечное время слота
+     * @param reserved  зарезервированный промежуток времени
      * @return результат проверки. {@code true} - если пересекает, иначе {@code false}
      */
     private boolean isOverlapping(LocalTime slotStart, LocalTime slotEnd, TimeSlotSchedulesConfig.TimeRange reserved) {
-        return !(slotEnd.isBefore(reserved.getStart()) || slotStart.isAfter(reserved.getEnd()));
+        return slotStart.isBefore(reserved.getEnd()) && slotEnd.isAfter(reserved.getStart());
+    }
+
+    /**
+     * Проверяет, попадает ли слот в зарезервированные часы (начало или конец).
+     *
+     * @param slotEnd  конечное время слота
+     * @param reserved зарезервированный промежуток времени
+     * @return результат проверки
+     */
+    private boolean isSlotWithinReservedHours(
+            LocalTime slotStart,
+            LocalTime slotEnd,
+            TimeSlotSchedulesConfig.TimeRange reserved
+    ) {
+        return (slotStart.equals(reserved.getStart()) || slotEnd.equals(reserved.getEnd())) ||
+                (slotStart.isAfter(reserved.getStart()) && slotStart.isBefore(reserved.getEnd())) ||
+                (slotEnd.isAfter(reserved.getStart()) && slotEnd.isBefore(reserved.getEnd()));
     }
 
     /**
