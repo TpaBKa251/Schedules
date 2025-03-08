@@ -25,5 +25,7 @@ springdoc:
     enabled: true
 
 schedules:
-  file:
+  timeslots:
     path: src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+  kitchen:
+    path: rooms.json

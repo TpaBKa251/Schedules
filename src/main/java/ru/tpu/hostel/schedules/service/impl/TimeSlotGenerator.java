@@ -35,7 +35,7 @@ public class TimeSlotGenerator {
     /**
      * Файл-конфиг расписания для слотов
      */
-    @Value("${schedules.file.path}")
+    @Value("${schedules.timeslots.path}")
     private String schedulesFilePath;
 
     private static final String SCHEDULE_MAPPING_ERROR_LOG_MESSAGE

@@ -1,3 +1,5 @@
 schedules:
-  file:
-    path: /app/schedules.json
+  timeslots:
+    path: /app/src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+  kitchen:
+    path: /app/rooms.json
