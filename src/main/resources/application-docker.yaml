@@ -1,0 +1,3 @@
+schedules:
+  file:
+    path: /app/schedules.json
