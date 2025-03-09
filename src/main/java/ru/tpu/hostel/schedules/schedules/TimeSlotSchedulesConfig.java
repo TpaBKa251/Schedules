@@ -46,6 +46,6 @@ public class TimeSlotSchedulesConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
-        return objectMapper.readValue(new File(filePath), TimeSlotSchedulesConfig.class);
+        return objectMapper.readValue(new File(filePath).getAbsoluteFile(), TimeSlotSchedulesConfig.class);
     }
 }

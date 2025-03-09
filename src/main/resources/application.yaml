@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: "@activatedProperties@"
   jpa:
     show-sql: true
     properties:
@@ -21,3 +23,9 @@ spring:
 springdoc:
   swagger-ui:
     enabled: true
+
+schedules:
+  timeslots:
+    path: src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+  kitchen:
+    path: rooms.json

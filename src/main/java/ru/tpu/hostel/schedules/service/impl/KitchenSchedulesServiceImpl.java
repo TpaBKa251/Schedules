@@ -3,6 +3,7 @@ package ru.tpu.hostel.schedules.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
@@ -35,9 +36,11 @@ import java.util.UUID;
 @EnableScheduling
 public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
-    private static final String FILE_PATH = System.getenv("ROOMS_FILE_PATH");
+    @Value("${schedules.kitchen.path}")
+    private String filePath;
 
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
+
     private final UserServiceClient userServiceClient;
 
     @Bean
@@ -58,7 +61,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
                 RoomsConfig roomsConfig;
 
                 try {
-                    roomsConfig = objectMapper.readValue(new File(FILE_PATH), RoomsConfig.class);
+                    roomsConfig = objectMapper.readValue(new File(filePath), RoomsConfig.class);
                 } catch (IOException e) {
                     throw new RuntimeException("Не удалось загрузить список комнат", e);
                 }
