@@ -13,6 +13,11 @@ services:
       - SPRING_DATASOURCE_USERNAME=hostel
       - SPRING_DATASOURCE_PASSWORD=ilia
       - ROOMS_FILE_PATH=/app/config/rooms.json
+      - RABBITMQ_HOST=rabbitmq  # Указываем имя RabbitMQ контейнера
+      - RABBITMQ_PORT=5672  # Порт RabbitMQ
+      - RABBITMQ_USERNAME=schedule
+      - RABBITMQ_PASSWORD=schedule
+      - RABBITMQ_VIRTUAL_HOST=schedule-service
     volumes:
       - ./rooms.json:/app/config/rooms.json
     healthcheck:
