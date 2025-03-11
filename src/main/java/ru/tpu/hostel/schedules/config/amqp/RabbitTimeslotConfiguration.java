@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.tpu.hostel.schedules.amqp.AmqpMessageSender;
+import ru.tpu.hostel.schedules.amqp.RabbitTimeslotSender;
 
 @Configuration
 @EnableConfigurationProperties({RabbitTimeslotProperties.class, RabbitTimeslotQueueingProperties.class})
@@ -36,6 +38,8 @@ public class RabbitTimeslotConfiguration {
     private static final String TIMESLOT_OBJECT_MAPPER = "timeslotQueueObjectMapper";
 
     private static final String TIMESLOT_MESSAGE_CONVERTER = "timeslotQueueMessageConverter";
+
+    private static final String TIMESLOT_AMQP_MESSAGE_SENDER = "timeslotAmqpMessageSender";
 
     @Bean(TIMESLOT_OBJECT_MAPPER)
     public ObjectMapper timeslotQueueObjectMapper() {
@@ -62,10 +66,10 @@ public class RabbitTimeslotConfiguration {
 
     @Bean(TIMESLOT_RABBIT_TEMPLATE)
     public RabbitTemplate timeslotQueueRabbitTemplate(
-            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory timeslotQueueConnectionFactory,
+            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
             @Qualifier(TIMESLOT_MESSAGE_CONVERTER) MessageConverter messageConverter
     ) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(timeslotQueueConnectionFactory);
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
     }
@@ -106,14 +110,22 @@ public class RabbitTimeslotConfiguration {
 
     @Bean(TIMESLOT_LISTENER)
     public SimpleRabbitListenerContainerFactory timeslotQueueListener(
-            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory timeslotQueueConnectionFactory
+            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory
     ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
 
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setDefaultRequeueRejected(false);
-        factory.setConnectionFactory(timeslotQueueConnectionFactory);
+        factory.setConnectionFactory(connectionFactory);
         return factory;
+    }
+
+    @Bean(TIMESLOT_AMQP_MESSAGE_SENDER)
+    public AmqpMessageSender timeslotAmqpMessageSender(
+            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+            RabbitTimeslotQueueingProperties queueProperties
+    ) {
+        return new RabbitTimeslotSender(connectionFactory, queueProperties);
     }
 
 }
