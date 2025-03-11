@@ -2,6 +2,7 @@ package ru.tpu.hostel.schedules.config.amqp;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
@@ -20,9 +21,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.tpu.hostel.schedules.amqp.AmqpMessageSender;
-import ru.tpu.hostel.schedules.amqp.RabbitTimeslotSender;
+import ru.tpu.hostel.schedules.rabbit.amqp.AmqpMessageSender;
+import ru.tpu.hostel.schedules.rabbit.amqp.timeslot.RabbitTimeslotSender;
 
+/**
+ * Конфигурация брокера сообщений RabbitMQ для общения с микросервисом броней
+ */
 @Configuration
 @EnableConfigurationProperties({RabbitTimeslotProperties.class, RabbitTimeslotQueueingProperties.class})
 public class RabbitTimeslotConfiguration {
@@ -35,21 +39,15 @@ public class RabbitTimeslotConfiguration {
 
     private static final String TIMESLOT_RABBIT_TEMPLATE = "timeslotQueueRabbitTemplate";
 
-    private static final String TIMESLOT_OBJECT_MAPPER = "timeslotQueueObjectMapper";
-
     private static final String TIMESLOT_MESSAGE_CONVERTER = "timeslotQueueMessageConverter";
 
     private static final String TIMESLOT_AMQP_MESSAGE_SENDER = "timeslotAmqpMessageSender";
 
-    @Bean(TIMESLOT_OBJECT_MAPPER)
-    public ObjectMapper timeslotQueueObjectMapper() {
-        return new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    }
-
     @Bean(TIMESLOT_MESSAGE_CONVERTER)
-    public MessageConverter timeslotQueueMessageConverter(
-            @Qualifier(TIMESLOT_OBJECT_MAPPER) ObjectMapper objectMapper
-    ) {
+    public MessageConverter timeslotQueueMessageConverter() {
+        ObjectMapper objectMapper = new ObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .registerModule(new JavaTimeModule());
         return new Jackson2JsonMessageConverter(objectMapper);
     }
 

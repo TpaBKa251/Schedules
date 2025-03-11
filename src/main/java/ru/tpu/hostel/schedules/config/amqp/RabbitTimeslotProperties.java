@@ -10,6 +10,9 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Свойства для подключения к брокеру сообщений RabbitMQ
+ */
 @Data
 @Validated
 @ConfigurationProperties(prefix = "rabbitmq.timeslots")

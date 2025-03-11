@@ -1,4 +1,4 @@
-package ru.tpu.hostel.schedules.amqp;
+package ru.tpu.hostel.schedules.rabbit.amqp.timeslot;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,14 +14,18 @@ import org.springframework.amqp.core.MessagePropertiesBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import ru.tpu.hostel.schedules.config.amqp.RabbitTimeslotQueueingProperties;
+import ru.tpu.hostel.schedules.rabbit.amqp.AmqpMessageSender;
 import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/**
+ * Реализация интерфейса {@link AmqpMessageSender} для отправки сообщений микросервису броней по RabbitMQ
+ */
 public class RabbitTimeslotSender implements AmqpMessageSender {
 
-    private static final int HIGH_PRIORITY = 1;
+    private static final int HIGH_PRIORITY = 10;
 
     private static final ObjectWriter WRITER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -51,7 +55,7 @@ public class RabbitTimeslotSender implements AmqpMessageSender {
                 receivedMessageProperties.getCorrelationId()
         );
         Message replyMessage = new Message(WRITER.writeValueAsBytes(messagePayload), replyProperties);
-        timeslotQueueRabbitTemplate.send(receivedMessageProperties.getReplyTo(), replyMessage);
+        timeslotQueueRabbitTemplate.send("", receivedMessageProperties.getReplyTo(), replyMessage);
     }
 
     private MessageProperties getMessageProperties(String messageId, String correlationId) {
