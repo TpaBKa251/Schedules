@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Делаем gradlew исполняемым и собираем проект
-RUN chmod +x gradlew && ./gradlew assemble
+#RUN chmod +x gradlew && ./gradlew assemble
 
 # Открываем порт
 EXPOSE 8080
