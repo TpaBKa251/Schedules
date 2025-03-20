@@ -9,5 +9,5 @@ schedules:
     path: /app/rooms.json
 
 rabbitmq:
-  schedules-service:
+  timeslots:
     addresses: 82.202.138.26:5672

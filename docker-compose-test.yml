@@ -44,9 +44,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/test_db
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
-      RABBITMQ_SCHEDULES-SERVICE_USERNAME: test_user
-      RABBITMQ_SCHEDULES-SERVICE_PASSWORD: test_password
-      RABBITMQ_SCHEDULES-SERVICE_VIRTUALHOST: test-host
+      RABBITMQ_TIMESLOTS_USERNAME: test_user
+      RABBITMQ_TIMESLOTS_PASSWORD: test_password
+      RABBITMQ_TIMESLOTS_VIRTUALHOST: test-host
     ports:
       - "8080:8080"
     healthcheck:
