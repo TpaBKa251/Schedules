@@ -1,8 +1,9 @@
-name: CI with SonarQube
+name: CI/CD for Vahta
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - master
 
 jobs:
   # Джоб для кеширования зависимостей
@@ -86,7 +87,7 @@ jobs:
       - name: Build and run tests (assemble .jar and run tests)
         run: |
           chmod +x gradlew
-          ./gradlew assemble
+          ./gradlew assemble  # Собираем и запускаем тесты
 
       # Стартуем сервисы в Docker
       - name: Build and start services in Docker
@@ -112,53 +113,39 @@ jobs:
       - name: Stop and remove containers
         run: docker-compose -f docker-compose-test.yml down
 
-  # Джоб для анализа SonarQube
-  sonar_analysis:
-    name: SonarQube Analysis
+  deploy:
+    name: Deploy on Prod
     runs-on: ubuntu-latest
-    needs: dockerized # dockerized_tests
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu'
-      - name: Build and analyze with SonarQube
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonarqube --info
-#
-#  # Джоб для сканирования безопасности
-#  security_scan:
-#    name: CodeQL Security Scan
-#    runs-on: ubuntu-latest
-#    needs: sonar_analysis
-#    permissions:
-#      security-events: write
-#    env:
-#      CODEQL_SOURCE_ROOT: src
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#
-#      # Сборка проекта перед анализом
-#      - name: Build project
-#        run: |
-#          ./gradlew assemble
-#          ./gradlew build
-#
-#      # Инициализация CodeQL (обновлено до v3)
-#      - name: Initialize CodeQL
-#        uses: github/codeql-action/init@v3
-#        with:
-#          languages: java
-#          source-root: src
-#
-#      # Выполнение анализа CodeQL (обновлено до v3)
-#      - name: Perform CodeQL Analysis
-#        uses: github/codeql-action/analyze@v3
+    needs: dockerized
 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE=ghcr.io/tpabka251/schedulesservice
+          docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
+          docker push $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}
+
+      - name: Deploy to k3s via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}            # IP или домен сервера
+          username: ${{ secrets.SSH_USER }}          # пользователь для SSH
+          key: ${{ secrets.SSH_PRIVATE_KEY }}        # приватный ключ (с кодовой фразой)
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}    # кодовая фраза к ключу
+          script: |
+            cd Schedules
+            git pull origin master
+            sudo kubectl apply -f k8s/deployment.yaml
+            sudo kubectl apply -f k8s/service.yaml
+            sudo kubectl rollout restart deployment/schedulesservice
+            sudo kubectl rollout status deployment/schedulesservice

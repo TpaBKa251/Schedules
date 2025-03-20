@@ -16,10 +16,26 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: test_user
+      RABBITMQ_DEFAULT_PASS: test_password
+      RABBITMQ_DEFAULT_VHOST: test-host
+    ports:
+      - "5672:5672"  # Порт для общения с микросервисами
+      - "15672:15672" # Web UI для управления RabbitMQ
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-test
     container_name: my-app
     depends_on:
       postgres:
@@ -28,6 +44,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/test_db
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
+      RABBITMQ_SCHEDULES-SERVICE_USERNAME: test_user
+      RABBITMQ_SCHEDULES-SERVICE_PASSWORD: test_password
+      RABBITMQ_SCHEDULES-SERVICE_VIRTUALHOST: test-host
     ports:
       - "8080:8080"
     healthcheck:

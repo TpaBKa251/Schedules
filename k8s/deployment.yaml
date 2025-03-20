@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schedulesservice
+  labels:
+    app: schedulesservice
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1         # Максимально количество новых контейнеров, которые могут быть созданы во время обновления
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: schedulesservice
+  template:
+    metadata:
+      labels:
+        app: schedulesservice
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: schedulesservice
+          image: ghcr.io/tpabka251/schedulesservice:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+              ephemeral-storage: "0Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health  # эндпоинт health для проверки состояния
+              port: 8080
+            initialDelaySeconds: 300    # Задержка перед первым запросом
+            periodSeconds: 60          # Интервал проверки
+            timeoutSeconds: 30          # Время ожидания ответа
+            failureThreshold: 3        # Количество неудачных попыток до перезапуска
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health  # тот же эндпоинт для проверки готовности
+              port: 8080
+            initialDelaySeconds: 120    # Задержка перед первым запросом
+            periodSeconds: 20          # Интервал проверки
+            timeoutSeconds: 30         # Время ожидания ответа
+            failureThreshold: 3

@@ -1,0 +1,5 @@
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY . .
+EXPOSE 8080
+CMD ["java", "-Dspring.profiles.active=docker", "-jar", "/app/build/libs/Schedules-0.0.1-SNAPSHOT.jar"]
