@@ -1,4 +1,4 @@
-CREATE TABLE "booking"."responsibles"
+CREATE TABLE "schedules"."responsibles"
 (
     id     UUID         NOT NULL UNIQUE PRIMARY KEY,
     "type" VARCHAR(255) NOT NULL,
