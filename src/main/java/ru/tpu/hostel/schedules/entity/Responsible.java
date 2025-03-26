@@ -13,12 +13,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.tpu.hostel.schedules.enums.BookingType;
+import ru.tpu.hostel.schedules.enums.EventType;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Table(name = "responsibles", schema = "booking")
+@Table(name = "responsibles", schema = "schedules")
 @Entity
 @Getter
 @Setter
@@ -31,7 +31,7 @@ public class Responsible {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "\"type\"")
-    private BookingType type;
+    private EventType type;
 
     @Column(name = "\"date\"")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
