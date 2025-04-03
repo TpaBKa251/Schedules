@@ -28,8 +28,4 @@ public class ResponsibleController {
         return responsibleService.getResponsible(date, type);
     }
 
-    @GetMapping
-    public String test(){
-        return "helo";
-    }
 }
