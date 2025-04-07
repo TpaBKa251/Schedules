@@ -85,7 +85,6 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     private Boolean userHasResponsibleRole(ResponsibleSetDto responsibleSetDto) {
         //Собирается все роли человека, которого ставим
         List<String> roles = userServiceClient.getAllRolesByUserId(responsibleSetDto.user());
-
         for (String role : roles) {
             //Если есть у человека роль ответственного за что-то, то ответственному ставим человека,
             // которому хотим записать(Если у человека есть роль на что-то, то его только на это и можно поставаить
