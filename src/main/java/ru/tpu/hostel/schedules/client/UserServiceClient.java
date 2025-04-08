@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.tpu.hostel.schedules.dto.response.UserNameWithIdResponse;
 import ru.tpu.hostel.schedules.dto.response.UserResponseDto;
 
 import java.util.List;
@@ -25,4 +26,10 @@ public interface UserServiceClient {
 
     @GetMapping("/users/get/all/in/rooms/with/id")
     List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers);
+
+    @GetMapping("roles/get/user/roles/all/{userId}")
+    List<String> getAllRolesByUserId(@PathVariable UUID userId);
+
+    @GetMapping("/users/get/by/id/short/{id}")
+    UserNameWithIdResponse getUserByIdShort(@PathVariable UUID id);
 }
