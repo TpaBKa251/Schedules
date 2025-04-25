@@ -11,7 +11,6 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.MessagePropertiesBuilder;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.config.amqp.RabbitTimeslotQueueingProperties;
@@ -39,10 +38,10 @@ public class RabbitTimeslotSender implements AmqpMessageSender {
     private final RabbitTemplate timeslotQueueRabbitTemplate;
 
     public RabbitTimeslotSender(
-            ConnectionFactory schedulesServiceConnectionFactory,
+            RabbitTemplate rabbitTemplate,
             RabbitTimeslotQueueingProperties properties
     ) {
-        this.timeslotQueueRabbitTemplate = new RabbitTemplate(schedulesServiceConnectionFactory);
+        this.timeslotQueueRabbitTemplate = rabbitTemplate;
         this.timeslotQueueRabbitTemplate.setExchange(properties.getExchangeName());
         this.timeslotQueueRabbitTemplate.setRoutingKey(properties.getRoutingKey());
     }

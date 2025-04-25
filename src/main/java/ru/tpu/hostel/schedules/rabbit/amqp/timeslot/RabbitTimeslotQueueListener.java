@@ -7,9 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import ru.tpu.hostel.schedules.dto.response.TimeSlotResponse;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.schedules.entity.TimeSlot;
+import ru.tpu.hostel.schedules.exception.ServiceException;
 import ru.tpu.hostel.schedules.rabbit.amqp.AmqpMessageSender;
+import ru.tpu.hostel.schedules.rabbit.amqp.timeslot.dto.ScheduleResponse;
+import ru.tpu.hostel.schedules.rabbit.amqp.timeslot.mapper.ScheduleResponseMapper;
 import ru.tpu.hostel.schedules.service.TimeSlotService;
 
 import java.io.IOException;
@@ -36,17 +41,32 @@ public class RabbitTimeslotQueueListener {
      * @throws IOException если произошла ошибка отправки
      */
     @RabbitListener(queues = "${queueing.timeslots.queueName}", containerFactory = TIMESLOT_LISTENER)
+    @Transactional
     public void receiveTimeslotMessage(Message message) throws IOException {
         MessageProperties messageProperties = message.getMessageProperties();
+        log.info("Received timeslot message: {}", messageProperties.getHeaders());
         ObjectMapper objectMapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         try {
             UUID timeslotId = objectMapper.readValue(message.getBody(), UUID.class);
-            TimeSlotResponse timeSlotResponse = timeSlotService.getTimeSlotById(timeslotId);
+            TimeSlot timeSlot = timeSlotService.bookTimeslot(timeslotId);
+            ScheduleResponse timeSlotResponse = ScheduleResponseMapper.mapTimeslotResponse(timeSlot);
             timeslotAmqpMessageSender.sendReply(messageProperties, timeSlotResponse);
-        } catch (IOException e) {
-            timeslotAmqpMessageSender.sendReply(messageProperties, null);
+        } catch (Exception e) {
+            ScheduleResponse failureResponse;
+            if (e instanceof ServiceException serviceException) {
+                failureResponse = ScheduleResponseMapper.mapFailureResponse(
+                        serviceException.getStatus(),
+                        serviceException.getMessage()
+                );
+            } else {
+                failureResponse = ScheduleResponseMapper.mapFailureResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        e.getMessage()
+                );
+            }
+            timeslotAmqpMessageSender.sendReply(messageProperties, failureResponse);
         }
     }
 

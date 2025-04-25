@@ -41,6 +41,9 @@ public class TimeSlot {
     @Column(name = "\"limit\"", nullable = false)
     private Integer limit;
 
+    @Column(name = "booking_count", nullable = false)
+    private Integer bookingCount;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

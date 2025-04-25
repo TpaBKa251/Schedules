@@ -192,6 +192,7 @@ public class TimeSlotGenerator {
                 timeSlot.setEndTime(slotEnd);
                 timeSlot.setType(type);
                 timeSlot.setLimit(limit);
+                timeSlot.setBookingCount(0);
 
                 dailySlots.add(timeSlot);
                 slotsCounter++;

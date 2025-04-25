@@ -27,7 +27,9 @@ def repoPass = project.findProperty("privateRepoPassword") ?: System.getenv("INT
 
 repositories {
     mavenCentral()
-
+    google()
+    gradlePluginPortal()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven {
         url "http://82.202.138.26:8081/repository/internal/"
         allowInsecureProtocol = true
@@ -35,6 +37,12 @@ repositories {
             username = repoUser
             password = repoPass
         }
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
     }
 }
 

@@ -38,9 +38,9 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         // если ответственного еще нет вообще - попытка засетить его первый раз
         Responsible responsible = responsibleRepository
                 .findByTypeAndDate(responsibleSetDto.type(), responsibleSetDto.date())
-                .orElse(firstSetResponsible(responsibleSetDto.type(), responsibleSetDto));
+                .orElse(firstSetResponsible(responsibleSetDto));
 
-        // если ответственный засетился и у юзера есть соотв. роль ответственного - можем назначить
+        // Если ответственный засетился и у юзера есть соотв. Роль ответственного - можем назначить
         if (responsible != null && userHasResponsibleRole(responsibleSetDto.type(), responsibleSetDto)) {
             responsible.setUser(responsibleSetDto.user());
             responsibleRepository.save(responsible);
@@ -93,16 +93,16 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     }
 
 
-    private Responsible firstSetResponsible(EventType type, ResponsibleSetDto responsibleSetDto) {
+    private Responsible firstSetResponsible(ResponsibleSetDto responsibleSetDto) {
         //Ищем любой слот в этом дне
         if (timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
-                type,
+                responsibleSetDto.type(),
                 responsibleSetDto.date().atTime(0, 0),
                 responsibleSetDto.date().atTime(23, 59)
         ).isPresent()) {
             //Назначаем ответственного, если нет ответственного и если вообще есть расписание (слоты) на день
             var responsible = new Responsible();
-            responsible.setType(type);
+            responsible.setType(responsibleSetDto.type());
             responsible.setDate(responsibleSetDto.date());
             return responsible;
         } else {
@@ -110,14 +110,14 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         }
     }
 
-    private Boolean userHasResponsibleRole(EventType type, ResponsibleSetDto responsibleSetDto) {
+    private Boolean userHasResponsibleRole(ResponsibleSetDto responsibleSetDto) {
         //Собирается все роли человека, которого ставим
         List<String> roles = userServiceClient.getAllRolesByUserId(responsibleSetDto.user());
         for (String role : roles) {
             //Если есть у человека роль ответственного за что-то, то ответственному ставим человека,
             // которому хотим записать(Если у человека есть роль на что-то, то его только на это и можно поставаить
             // (Если поставить человека не ответственного за зал в ответственного, то нельзя так))
-            if (role.contains(type.toString())) {
+            if (role.contains(responsibleSetDto.type().toString())) {
                 return true;
             }
         }

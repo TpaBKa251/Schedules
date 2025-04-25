@@ -1,6 +1,8 @@
 package ru.tpu.hostel.schedules.repository;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,4 +39,16 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
             @Param("type") EventType eventType,
             @Param("startDate") LocalDateTime startTime,
             @Param("endDate") LocalDateTime endDate);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+                SELECT ts
+                FROM TimeSlot ts
+                WHERE ts.id = :id AND ts.bookingCount < ts.limit AND ts.startTime >= :currentTime
+            """)
+    Optional<TimeSlot> findAvailableSlotForUpdate(
+            @Param("id") UUID id,
+            @Param("currentTime") LocalDateTime currentTime
+    );
+
 }

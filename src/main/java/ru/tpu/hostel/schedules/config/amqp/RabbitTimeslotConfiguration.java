@@ -69,6 +69,7 @@ public class RabbitTimeslotConfiguration {
     ) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
+        rabbitTemplate.setObservationEnabled(true);
         return rabbitTemplate;
     }
 
@@ -120,10 +121,10 @@ public class RabbitTimeslotConfiguration {
 
     @Bean(TIMESLOT_AMQP_MESSAGE_SENDER)
     public AmqpMessageSender timeslotAmqpMessageSender(
-            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+            @Qualifier(TIMESLOT_RABBIT_TEMPLATE) RabbitTemplate rabbitTemplate,
             RabbitTimeslotQueueingProperties queueProperties
     ) {
-        return new RabbitTimeslotSender(connectionFactory, queueProperties);
+        return new RabbitTimeslotSender(rabbitTemplate, queueProperties);
     }
 
 }
