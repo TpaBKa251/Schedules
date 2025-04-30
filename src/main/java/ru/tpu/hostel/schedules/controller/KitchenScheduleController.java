@@ -56,7 +56,7 @@ public class KitchenScheduleController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("kitchen/mark-completed")
+    @PatchMapping("/kitchen/mark-completed")
     public ResponseEntity<?> markScheduleCompleted(
             @Valid @RequestBody MarkScheduleCompletedDto markScheduleCompletedDto) {
         kitchenSchedulesService.markScheduleCompleted(markScheduleCompletedDto);
