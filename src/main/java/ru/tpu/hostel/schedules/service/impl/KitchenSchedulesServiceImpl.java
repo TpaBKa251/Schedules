@@ -3,23 +3,26 @@ package ru.tpu.hostel.schedules.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.schedules.client.UserServiceClient;
 import ru.tpu.hostel.schedules.dto.request.MarkScheduleCompletedDto;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
+import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
 import ru.tpu.hostel.schedules.dto.response.UserResponseDto;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 import ru.tpu.hostel.schedules.mapper.KitchenScheduleMapper;
 import ru.tpu.hostel.schedules.repository.KitchenSchedulesRepository;
 import ru.tpu.hostel.schedules.service.KitchenSchedulesService;
 import ru.tpu.hostel.schedules.service.RoomsConfig;
+import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +35,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@EnableScheduling
 public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
     @Value("${schedules.kitchen.path}")
@@ -46,8 +50,8 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         return args -> checkSchedules();
     }
 
-    @Scheduled(cron = "0 0 12 * * *")
-    @jakarta.transaction.Transactional
+    @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
+    @Transactional
     public void handleMissedSchedules() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
@@ -80,7 +84,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
             LocalDate lastDate = kitchenSchedulesRepository.findLastDateOfScheduleByFloor(i).orElse(null);
             Integer lastNumber = kitchenSchedulesRepository.findLastNumberOfScheduleByFloor(i).orElse(null);
 
-            if (lastDate == null || lastDate.isEqual(TimeUtil.now().toLocalDate().plusDays(2))) {
+            if (lastDate == null || lastDate.isEqual(TimeNow.now().toLocalDate().plusDays(2))) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
 
