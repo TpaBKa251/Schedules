@@ -15,6 +15,7 @@ import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -50,11 +51,10 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LIKE :floor
             ORDER BY k.date""",
             nativeQuery = true)
-    Page<KitchenSchedule> findAllOnFloor(
+    List<KitchenSchedule> findAllOnFloor(
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
-            String floor,
-            Pageable pageable
+            String floor
     );
 
     @Query(value = """
@@ -63,7 +63,7 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LIKE CAST(:floor AS TEXT)
             ORDER BY k.room_number""",
             nativeQuery = true)
-    Page<String> findAllRoomsOnFloor(@Param("floor") String floor, Pageable pageable);
+    Set<String> findAllRoomsOnFloor(@Param("floor") String floor);
 
     @Query(value = """
             SELECT * FROM schedules.kitchen k
@@ -94,4 +94,15 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             String floor,
             LocalDate date
     );
+
+    Optional<KitchenSchedule> findKitchenScheduleById(UUID id);
+
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = :checked")
+    List<KitchenSchedule> findAllByDateAndChecked(@Param("date") LocalDate date, @Param("checked") boolean checked);
+
+    @Query("SELECT k FROM KitchenSchedule k WHERE SUBSTRING(k.roomNumber, 1, 1) = :floor " +
+            "AND k.date >= :fromDate")
+    List<KitchenSchedule> findAllByFloorFromDate(
+            @Param("floor") String floor,
+            @Param("fromDate") LocalDate fromDate);
 }
