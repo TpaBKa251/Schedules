@@ -8,3 +8,8 @@ spring:
 rabbitmq:
   timeslots:
     addresses: localhost:5672
+
+otlp:
+  tracing:
+    export-enabled: false
+    endpoint: http://localhost:4317

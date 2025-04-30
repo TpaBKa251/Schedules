@@ -11,3 +11,7 @@ schedules:
 rabbitmq:
   timeslots:
     addresses: 82.202.138.26:5672
+
+otlp:
+  tracing:
+    endpoint: http://tempo.monitoring.svc.cluster.local:4317

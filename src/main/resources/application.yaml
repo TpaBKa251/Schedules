@@ -46,6 +46,13 @@ queueing:
     queueName: schedule-timeslots-queue
     routingKey: schedule-timeslots
 
+otlp:
+  tracing:
+    export-enabled: true
+    endpoint: http://tempo:4317
+    timeout: 5000
+    service-name: schedule-service
+
 springdoc:
   swagger-ui:
     enabled: true
