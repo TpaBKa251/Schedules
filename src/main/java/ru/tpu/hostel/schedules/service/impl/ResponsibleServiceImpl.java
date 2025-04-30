@@ -2,6 +2,8 @@ package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.common.exception.ServiceException;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.schedules.client.UserServiceClient;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleSetDto;
 import ru.tpu.hostel.schedules.dto.response.ResponsibleResponseDto;
@@ -9,8 +11,6 @@ import ru.tpu.hostel.schedules.dto.response.UserNameWithIdResponse;
 import ru.tpu.hostel.schedules.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.schedules.entity.Responsible;
 import ru.tpu.hostel.schedules.enums.EventType;
-import ru.tpu.hostel.schedules.enums.Roles;
-import ru.tpu.hostel.schedules.exception.ResponsibleNotFoundException;
 import ru.tpu.hostel.schedules.mapper.ResponsibleMapper;
 import ru.tpu.hostel.schedules.repository.ResponsibleRepository;
 import ru.tpu.hostel.schedules.repository.TimeSlotRepository;
@@ -45,7 +45,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             return responsibleMapper.mapToResponsibleResponseDto(responsible);
         }
         else {
-            throw new ResponsibleNotFoundException();
+            throw new ServiceException.NotFound("Responsible not found");
         }
     }
 
@@ -73,7 +73,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             return responsibleMapper.mapToResponsibleResponseDto(responsible);
         }
         else {
-            throw new ResponsibleNotFoundException();
+            throw new ServiceException.NotFound("Responsible not found");
         }
     }
 
@@ -82,7 +82,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     public UserShortResponseDto getResponsible(LocalDate date, EventType type) {
         //Ищется ответственный по типу и дате
         Responsible responsible = responsibleRepository.findByTypeAndDate(type, date).orElseThrow(
-                ResponsibleNotFoundException::new
+                ServiceException.NotFound::new
         );
 
         //Если пользователь не найден (Не назначен), то на мобилку идет пустота

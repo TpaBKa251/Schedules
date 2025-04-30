@@ -23,7 +23,6 @@ import ru.tpu.hostel.schedules.entity.TimeSlot;
 import ru.tpu.hostel.schedules.enums.EventType;
 import ru.tpu.hostel.schedules.repository.TimeSlotRepository;
 import ru.tpu.hostel.schedules.schedules.TimeSlotSchedulesConfig;
-import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.io.IOException;
 import java.io.InputStream;

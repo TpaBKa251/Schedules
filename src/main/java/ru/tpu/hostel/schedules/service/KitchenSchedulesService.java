@@ -2,7 +2,6 @@ package ru.tpu.hostel.schedules.service;
 
 import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
-import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 
 import java.time.LocalDate;
 import java.util.List;

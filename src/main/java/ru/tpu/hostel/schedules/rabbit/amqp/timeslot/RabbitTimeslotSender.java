@@ -13,9 +13,9 @@ import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.core.MessagePropertiesBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.config.amqp.RabbitTimeslotQueueingProperties;
 import ru.tpu.hostel.schedules.rabbit.amqp.AmqpMessageSender;
-import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -32,7 +32,7 @@ public class RabbitTimeslotSender implements AmqpMessageSender {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
             .disable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
-            .setTimeZone(TimeNow.getTimeZone())
+            .setTimeZone(TimeUtil.getTimeZone())
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
             .writer();
 
@@ -59,7 +59,7 @@ public class RabbitTimeslotSender implements AmqpMessageSender {
     }
 
     private MessageProperties getMessageProperties(String messageId, String correlationId) {
-        ZonedDateTime now = TimeNow.getZonedDateTime();
+        ZonedDateTime now = TimeUtil.getZonedDateTime();
         long nowMillis = now.toInstant().toEpochMilli();
 
         return MessagePropertiesBuilder.newInstance()
