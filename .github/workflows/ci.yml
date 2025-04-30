@@ -43,6 +43,9 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Build with Gradle
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew clean build   
@@ -63,6 +66,9 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Run tests with Gradle
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew clean test
@@ -84,6 +90,9 @@ jobs:
 
       # Сборка проекта и запуск тестов
       - name: Build and run tests (assemble .jar and run tests)
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assemble
