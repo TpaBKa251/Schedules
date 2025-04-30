@@ -7,9 +7,6 @@ plugins {
     id 'jacoco'
 }
 
-def env = new Properties()
-file("repository-config.env").withInputStream { env.load(it) }
-
 group = 'ru.tpu.hostel'
 version = '0.0.1-SNAPSHOT'
 
@@ -25,6 +22,9 @@ configurations {
     }
 }
 
+def repoUser = project.findProperty("privateRepoUsername") ?: System.getenv("INTERNAL_REPO_LOGIN")
+def repoPass = project.findProperty("privateRepoPassword") ?: System.getenv("INTERNAL_REPO_PASSWORD")
+
 repositories {
     mavenCentral()
 
@@ -32,11 +32,10 @@ repositories {
         url "http://82.202.138.26:8081/repository/internal/"
         allowInsecureProtocol = true
         credentials {
-            username = env['username']
-            password = env['password']
+            username = repoUser
+            password = repoPass
         }
     }
-
 }
 
 sonarqube {
@@ -53,10 +52,8 @@ sonarqube {
 }
 
 dependencies {
-
-    implementation 'ru.tpu.hostel:hostel-core:1.0.2'
-    implementation 'ru.tpu.hostel:hostel-feign:1.0.2'
-
+    implementation 'ru.tpu.hostel:hostel-core:1.0.3'
+    implementation 'ru.tpu.hostel:hostel-feign:1.0.3'
 
     implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.2")
     //implementation 'ch.qos.logback:logback-core:1.5.13'
