@@ -1,16 +1,24 @@
 package ru.tpu.hostel.schedules.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
-import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
-import ru.tpu.hostel.schedules.dto.response.UserResponseDto;
-import ru.tpu.hostel.schedules.dto.response.UserShortResponseDto;
+import ru.tpu.hostel.schedules.dto.response.*;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 
 import java.util.List;
 
 @Component
 public class KitchenScheduleMapper {
+
+    public static KitchenScheduleShortResponseDto mapToKitchenScheduleShortResponseDto(
+            KitchenSchedule kitchenSchedule
+    ) {
+        return new KitchenScheduleShortResponseDto(
+                kitchenSchedule.getId(),
+                kitchenSchedule.getDate(),
+                kitchenSchedule.getRoomNumber(),
+                kitchenSchedule.getChecked()
+        );
+    }
 
     public static KitchenScheduleResponseDto mapToKitchenScheduleResponseDto(
             KitchenSchedule kitchenSchedule,
