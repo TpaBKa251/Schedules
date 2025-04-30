@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.entity.TimeSlot;
 import ru.tpu.hostel.schedules.enums.EventType;
 import ru.tpu.hostel.schedules.repository.TimeSlotRepository;
@@ -91,11 +92,11 @@ class TimeSlotGeneratorTest {
             List<TimeSlot> expectedTimeSlots,
             int expectedListLength) {
         try (MockedStatic<TimeSlotSchedulesConfig> mockedSchedulesConfig = mockStatic(TimeSlotSchedulesConfig.class);
-             MockedStatic<TimeNow> mockedTimeNow = mockStatic(TimeNow.class)
+             MockedStatic<TimeUtil> mockedTimeNow = mockStatic(TimeUtil.class)
         ) {
             mockedSchedulesConfig.when(() -> TimeSlotSchedulesConfig.loadFromFile(FILE_NAME))
                     .thenReturn(config);
-            mockedTimeNow.when(TimeNow::now).thenReturn(TIME_GYM_1);
+            mockedTimeNow.when(TimeUtil::now).thenReturn(TIME_GYM_1);
 
             timeSlotGenerator.generateSlotsOnLastDay();
 
@@ -134,11 +135,11 @@ class TimeSlotGeneratorTest {
     @MethodSource("argumentsForGenerateSlotsForWeekWithSuccess")
     void generateSlotsForWeekWithSuccess(TimeSlotSchedulesConfig config, List<TimeSlot> expectedTimeSlots) {
         try (MockedStatic<TimeSlotSchedulesConfig> mockedSchedulesConfig = mockStatic(TimeSlotSchedulesConfig.class);
-             MockedStatic<TimeNow> mockedTimeNow = mockStatic(TimeNow.class)
+             MockedStatic<TimeUtil> mockedTimeNow = mockStatic(TimeUtil.class)
         ) {
             mockedSchedulesConfig.when(() -> TimeSlotSchedulesConfig.loadFromFile(FILE_NAME))
                     .thenReturn(config);
-            mockedTimeNow.when(TimeNow::now).thenReturn(TIME_GYM_1);
+            mockedTimeNow.when(TimeUtil::now).thenReturn(TIME_GYM_1);
             when(timeSlotRepository.findLastByType(any(EventType.class))).thenReturn(Optional.empty());
             expectedTimeSlots = expectedTimeSlots.stream()
                     .peek(timeSlot -> {
@@ -164,11 +165,11 @@ class TimeSlotGeneratorTest {
             List<TimeSlot> expectedTimeSlots
     ) {
         try (MockedStatic<TimeSlotSchedulesConfig> mockedSchedulesConfig = mockStatic(TimeSlotSchedulesConfig.class);
-             MockedStatic<TimeNow> mockedTimeNow = mockStatic(TimeNow.class)
+             MockedStatic<TimeUtil> mockedTimeNow = mockStatic(TimeUtil.class)
         ) {
             mockedSchedulesConfig.when(() -> TimeSlotSchedulesConfig.loadFromFile(FILE_NAME))
                     .thenReturn(config);
-            mockedTimeNow.when(TimeNow::now).thenReturn(TIME_GYM_1);
+            mockedTimeNow.when(TimeUtil::now).thenReturn(TIME_GYM_1);
             TimeSlot lastTimeSlot = getNewTimeSlot(
                     TIME_GYM_1.plusDays(2),
                     TIME_GYM_1.plusDays(2),
