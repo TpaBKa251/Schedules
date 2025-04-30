@@ -44,6 +44,9 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Build with Gradle
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew clean build   
@@ -64,6 +67,9 @@ jobs:
           java-version: 17
           distribution: 'zulu'
       - name: Run tests with Gradle
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew clean test
@@ -85,6 +91,9 @@ jobs:
 
       # Сборка проекта и запуск тестов
       - name: Build and run tests (assemble .jar and run tests)
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew assemble  # Собираем и запускаем тесты
@@ -129,6 +138,9 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Build and Push Docker Image
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           IMAGE=ghcr.io/tpabka251/schedulesservice
           docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
