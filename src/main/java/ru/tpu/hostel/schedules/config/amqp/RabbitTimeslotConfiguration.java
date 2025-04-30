@@ -3,6 +3,8 @@ package ru.tpu.hostel.schedules.config.amqp;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Tracer;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
@@ -15,12 +17,14 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.tpu.hostel.schedules.config.amqp.tracing.TracingInterceptor;
 import ru.tpu.hostel.schedules.rabbit.amqp.AmqpMessageSender;
 import ru.tpu.hostel.schedules.rabbit.amqp.timeslot.RabbitTimeslotSender;
 
@@ -109,13 +113,16 @@ public class RabbitTimeslotConfiguration {
 
     @Bean(TIMESLOT_LISTENER)
     public SimpleRabbitListenerContainerFactory timeslotQueueListener(
-            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory
+            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+            OpenTelemetry openTelemetry,
+            Tracer tracer
     ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
 
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setDefaultRequeueRejected(false);
         factory.setConnectionFactory(connectionFactory);
+        factory.setAdviceChain(new TracingInterceptor(tracer, openTelemetry));
         return factory;
     }
 

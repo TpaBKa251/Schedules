@@ -49,6 +49,7 @@ spring:
       locations:
         - db.migration
     schemas: schedules
+    out-of-order: true
 
   rabbitmq:
     listener:

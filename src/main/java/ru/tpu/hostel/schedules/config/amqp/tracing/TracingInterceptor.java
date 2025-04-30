@@ -1,4 +1,4 @@
-package ru.tpu.hostel.schedules.aspect.amqp;
+package ru.tpu.hostel.schedules.config.amqp.tracing;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
@@ -8,23 +8,15 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.amqp.core.Message;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-@Aspect
-@Component
 @RequiredArgsConstructor
-@Slf4j
-@Order(0)
-public class RabbitTraceAspect {
+public class TracingInterceptor implements MethodInterceptor {
 
     private final Tracer tracer;
 
@@ -46,23 +38,23 @@ public class RabbitTraceAspect {
         }
     };
 
-    @Around("@annotation(org.springframework.amqp.rabbit.annotation.RabbitListener)")
-    public Object traceRabbitListener(ProceedingJoinPoint joinPoint) throws Throwable {
-        Message message = Arrays.stream(joinPoint.getArgs())
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        Message message = Arrays.stream(invocation.getArguments())
                 .filter(Message.class::isInstance)
                 .map(Message.class::cast)
                 .findFirst()
                 .orElse(null);
 
         if (message == null) {
-            return joinPoint.proceed();
+            return invocation.proceed();
         }
 
         Context context = openTelemetry.getPropagators()
                 .getTextMapPropagator()
                 .extract(Context.current(), message, GETTER);
 
-        String queue = getQueueName(message);
+        String queue = message.getMessageProperties().getConsumerQueue();
         Span span = tracer.spanBuilder("rabbit.receive")
                 .setParent(context)
                 .setAttribute("messaging.system", "rabbitmq")
@@ -75,7 +67,7 @@ public class RabbitTraceAspect {
                 .startSpan();
 
         try (Scope ignored = span.makeCurrent()) {
-            Object result = joinPoint.proceed();
+            Object result = invocation.proceed();
             span.setStatus(StatusCode.OK);
             return result;
         } catch (Exception e) {
@@ -86,11 +78,4 @@ public class RabbitTraceAspect {
             span.end();
         }
     }
-
-    private String getQueueName(Message message) {
-        return message.getMessageProperties().getConsumerQueue();
-    }
 }
-
-
-
