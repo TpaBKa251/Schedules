@@ -51,7 +51,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         return args -> checkSchedules();
     }
 
-    @Scheduled(cron = "0 0 12 * * *")
+    @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
     @Transactional
     public void handleMissedSchedules() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
