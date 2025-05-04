@@ -20,7 +20,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
             WHERE t.type = :eventType
             ORDER BY t.startTime DESC LIMIT 1
             """)
-    Optional<TimeSlot> findLastByType(EventType eventType);
+    Optional<TimeSlot> findLastByType(@Param("eventType") EventType eventType);
 
     List<TimeSlot> findByType(EventType eventType);
 

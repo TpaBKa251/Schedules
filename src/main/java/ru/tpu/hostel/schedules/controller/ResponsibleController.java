@@ -19,22 +19,14 @@ public class ResponsibleController {
 
     private final ResponsibleService responsibleService;
 
-    @PostMapping("/{type}")
-    public ResponsibleResponseDto setResponsible(
-            @PathVariable EventType type,
-            @Valid @RequestBody ResponsibleSetDto responsibleSetDto
-    ) {
-        return responsibleService.setResponsible(type, responsibleSetDto);
+    @PostMapping("")
+    public ResponsibleResponseDto setResponsible(@Valid @RequestBody ResponsibleSetDto responsibleSetDto) {
+        return responsibleService.setResponsible(responsibleSetDto);
     }
 
-    @PostMapping("/self/{type}/{userId}/{userRoles}")
-    public ResponsibleResponseDto setYourselfResponsible(
-            @PathVariable EventType type,
-            @PathVariable UUID userId,
-            @PathVariable String[] userRoles,
-            @Valid @RequestBody ResponsibleSetDto responsibleSetDto
-    ) {
-        return responsibleService.setYourselfResponsible(userId, userRoles, type, responsibleSetDto);
+    @PostMapping("/self")
+    public ResponsibleResponseDto setYourselfResponsible(@Valid @RequestBody ResponsibleSetDto responsibleSetDto) {
+        return responsibleService.setYourselfResponsible(responsibleSetDto);
     }
 
     @GetMapping("/get/{date}/{type}")

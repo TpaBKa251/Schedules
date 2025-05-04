@@ -19,27 +19,29 @@ import ru.tpu.hostel.schedules.service.ResponsibleService;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ResponsibleServiceImpl implements ResponsibleService {
 
     private final ResponsibleRepository responsibleRepository;
+
     private final TimeSlotRepository timeSlotRepository;
+
     private final UserServiceClient userServiceClient;
+
     private final ResponsibleMapper responsibleMapper;
 
     @Override
-    public ResponsibleResponseDto setResponsible(EventType type, ResponsibleSetDto responsibleSetDto) {
+    public ResponsibleResponseDto setResponsible(ResponsibleSetDto responsibleSetDto) {
         //Ищется чувак по типу и дате (он на какую-то дату назначен),
         // если ответственного еще нет вообще - попытка засетить его первый раз
         Responsible responsible = responsibleRepository
-                .findByTypeAndDate(type, responsibleSetDto.date())
-                .orElse(firstSetResponsible(type, responsibleSetDto));
+                .findByTypeAndDate(responsibleSetDto.type(), responsibleSetDto.date())
+                .orElse(firstSetResponsible(responsibleSetDto.type(), responsibleSetDto));
 
         // если ответственный засетился и у юзера есть соотв. роль ответственного - можем назначить
-        if (responsible != null && userHasResponsibleRole(type, responsibleSetDto)) {
+        if (responsible != null && userHasResponsibleRole(responsibleSetDto.type(), responsibleSetDto)) {
             responsible.setUser(responsibleSetDto.user());
             responsibleRepository.save(responsible);
             return responsibleMapper.mapToResponsibleResponseDto(responsible);
@@ -50,12 +52,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     }
 
     @Override
-    public ResponsibleResponseDto setYourselfResponsible(
-            UUID userId,
-            String[] stringUserRoles,
-            EventType type,
-            ResponsibleSetDto responsibleSetDto
-    ) {
+    public ResponsibleResponseDto setYourselfResponsible(ResponsibleSetDto responsibleSetDto) {
         //сюда прилетает ResponsibleSetDto, но user здесь null всегда,
         //но из шлюза допом прилетает userId и список ролей пользователя
 
