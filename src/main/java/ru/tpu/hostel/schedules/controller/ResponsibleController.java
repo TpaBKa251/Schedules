@@ -10,6 +10,7 @@ import ru.tpu.hostel.schedules.enums.EventType;
 import ru.tpu.hostel.schedules.service.ResponsibleService;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/responsibles")
@@ -18,9 +19,14 @@ public class ResponsibleController {
 
     private final ResponsibleService responsibleService;
 
-    @PostMapping
+    @PostMapping("")
     public ResponsibleResponseDto setResponsible(@Valid @RequestBody ResponsibleSetDto responsibleSetDto) {
         return responsibleService.setResponsible(responsibleSetDto);
+    }
+
+    @PostMapping("/self")
+    public ResponsibleResponseDto setYourselfResponsible(@Valid @RequestBody ResponsibleSetDto responsibleSetDto) {
+        return responsibleService.setYourselfResponsible(responsibleSetDto);
     }
 
     @GetMapping("/get/{date}/{type}")

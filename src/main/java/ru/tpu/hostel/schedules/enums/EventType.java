@@ -9,7 +9,8 @@ public enum EventType {
     HALL("Зал"),
     INTERNET("Интернет"),
     GYM("Тренажерный зал"),
-    KITCHEN("Кухня");
+    KITCHEN("Кухня"),
+    SOOP("СООП");
 
     private final String eventTypeName;
 }

@@ -13,7 +13,6 @@ public record ResponsibleSetDto(
         @NotNull(message = "Тип ответственного не может быть пустым")
         EventType type,
 
-        @NotNull(message = "ID ответственного не может быть пустым")
         UUID user
 ) {
 }

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.client.UserServiceClient;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
@@ -20,7 +21,6 @@ import ru.tpu.hostel.schedules.mapper.KitchenScheduleMapper;
 import ru.tpu.hostel.schedules.repository.KitchenSchedulesRepository;
 import ru.tpu.hostel.schedules.service.KitchenSchedulesService;
 import ru.tpu.hostel.schedules.service.RoomsConfig;
-import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
             LocalDate lastDate = kitchenSchedulesRepository.findLastDateOfScheduleByFloor(i).orElse(null);
             Integer lastNumber = kitchenSchedulesRepository.findLastNumberOfScheduleByFloor(i).orElse(null);
 
-            if (lastDate == null || lastDate.isEqual(TimeNow.now().toLocalDate().plusDays(2))) {
+            if (lastDate == null || lastDate.isEqual(TimeUtil.now().toLocalDate().plusDays(2))) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 objectMapper.registerModule(new JavaTimeModule());
 
@@ -70,8 +70,8 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
                 List<KitchenSchedule> schedules = new ArrayList<>();
 
                 LocalDate scheduleDate = lastDate == null
-                        ? TimeNow.now().toLocalDate()
-                        : TimeNow.now().toLocalDate().plusDays(3);
+                        ? TimeUtil.now().toLocalDate()
+                        : TimeUtil.now().toLocalDate().plusDays(3);
 
                 for (String room : rooms) {
                     KitchenSchedule kitchenSchedule = new KitchenSchedule();
@@ -100,7 +100,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
             LocalDate date = kitchenSchedulesRepository.findDateByRoomNumber("202").orElse(null);
 
-            if (date != null && TimeNow.now().toLocalDate().equals(date)) {
+            if (date != null && TimeUtil.now().toLocalDate().equals(date)) {
                 kitchenSchedulesRepository.deleteAllByDateLessThan(date.minusDays(2));
             }
         }
@@ -154,7 +154,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         String roomNumber = userServiceClient.getRoomNumber(userId);
 
         return kitchenSchedulesRepository
-                .findAllByRoomNumberAndDateLessThanEqual(roomNumber, TimeNow.now().toLocalDate().plusDays(7))
+                .findAllByRoomNumberAndDateLessThanEqual(roomNumber, TimeUtil.now().toLocalDate().plusDays(7))
                 .stream()
                 .map(KitchenScheduleMapper::mapToActiveEventDto)
                 .toList();

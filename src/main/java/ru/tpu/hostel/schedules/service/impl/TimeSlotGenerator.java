@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.entity.TimeSlot;
 import ru.tpu.hostel.schedules.enums.EventType;
 import ru.tpu.hostel.schedules.repository.TimeSlotRepository;
 import ru.tpu.hostel.schedules.schedules.TimeSlotSchedulesConfig;
-import ru.tpu.hostel.schedules.utils.TimeNow;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -77,7 +77,7 @@ public class TimeSlotGenerator {
             List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
             Map<String, List<TimeSlotSchedulesConfig.TimeRange>> reservedHours = schedule.getReservedHours();
 
-            LocalDate today = TimeNow.now().toLocalDate();
+            LocalDate today = TimeUtil.now().toLocalDate();
 
             LocalDate currentDate = today.plusDays(WEEK);
             DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
@@ -113,7 +113,7 @@ public class TimeSlotGenerator {
         }
 
         List<TimeSlot> slots = new ArrayList<>();
-        LocalDate endOfWeek = TimeNow.now().toLocalDate().plusDays(WEEK_PLUS_ONE_DAY);
+        LocalDate endOfWeek = TimeUtil.now().toLocalDate().plusDays(WEEK_PLUS_ONE_DAY);
 
         for (TimeSlotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
             List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
@@ -123,8 +123,8 @@ public class TimeSlotGenerator {
                     .orElse(null);
 
             LocalDate currentDate
-                    = (lastSlot == null || lastSlot.getStartTime().toLocalDate().isBefore(TimeNow.now().toLocalDate()))
-                    ? TimeNow.now().toLocalDate()
+                    = (lastSlot == null || lastSlot.getStartTime().toLocalDate().isBefore(TimeUtil.now().toLocalDate()))
+                    ? TimeUtil.now().toLocalDate()
                     : lastSlot.getStartTime().toLocalDate().plusDays(ONE_DAY);
 
             while (currentDate.isBefore(endOfWeek)) {

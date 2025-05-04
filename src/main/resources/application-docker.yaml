@@ -3,3 +3,7 @@ schedules:
     path: /app/src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
   kitchen:
     path: /app/rooms.json
+
+otlp:
+  tracing:
+    export-enabled: false
