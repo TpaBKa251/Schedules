@@ -1,8 +1,8 @@
 schedules:
   timeslots:
-    path: /app/src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+    path: /app/configs/schedules.json
   kitchen:
-    path: /app/rooms.json
+    path: /app/configs/rooms.json
 
 otlp:
   tracing:

@@ -1,7 +1,7 @@
 package ru.tpu.hostel.schedules;
 
-import ru.tpu.hostel.schedules.entity.TimeSlot;
-import ru.tpu.hostel.schedules.enums.EventType;
+import ru.tpu.hostel.schedules.entity.Timeslot;
+import ru.tpu.hostel.schedules.entity.EventType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -107,13 +107,13 @@ public class Data {
 
     public static final UUID RANDOM_UUID = UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851");
 
-    public static TimeSlot getNewTimeSlot(
+    public static Timeslot getNewTimeSlot(
             LocalDateTime startTime,
             LocalDateTime endTime,
             EventType eventType,
             Integer limit
     ) {
-        TimeSlot timeSlot = new TimeSlot();
+        Timeslot timeSlot = new Timeslot();
         timeSlot.setStartTime(startTime);
         timeSlot.setEndTime(endTime);
         timeSlot.setType(eventType);

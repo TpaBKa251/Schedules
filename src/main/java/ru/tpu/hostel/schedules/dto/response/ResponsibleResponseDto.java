@@ -1,6 +1,6 @@
 package ru.tpu.hostel.schedules.dto.response;
 
-import ru.tpu.hostel.schedules.enums.EventType;
+import ru.tpu.hostel.schedules.entity.EventType;
 
 import java.time.LocalDate;
 import java.util.UUID;

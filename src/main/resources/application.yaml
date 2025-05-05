@@ -9,16 +9,34 @@ management:
   endpoint:
     health:
       show-details: always
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4317
+
+logging:
+  level:
+    org.hibernate: OFF
 
 spring:
+  application:
+    name: schedules-service
   profiles:
     active: "@activatedProperties@"
 
   jpa:
-    show-sql: true
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
+        jdbc:
+          batch_size: 50
+          order_inserts: true
+          order_updates: true
+        generate_statistics: false
 
   datasource:
     url: jdbc:postgresql://hostelDB:5432/hostelService
@@ -31,6 +49,12 @@ spring:
       locations:
         - db.migration
     schemas: schedules
+    out-of-order: true
+
+  rabbitmq:
+    listener:
+      direct:
+        observation-enabled: true
 
 rabbitmq:
   timeslots:
@@ -45,6 +69,10 @@ queueing:
     exchangeName: schedule-timeslots-exchange
     queueName: schedule-timeslots-queue
     routingKey: schedule-timeslots
+  cancel:
+    exchangeName: schedule-timeslots-exchange
+    queueName: schedule-timeslots-cancel-queue
+    routingKey: schedule-timeslots-cancel
 
 otlp:
   tracing:
@@ -53,12 +81,16 @@ otlp:
     timeout: 5000
     service-name: schedule-service
 
+rest:
+  base-url:
+    user-service: http://userservice:8080
+
 springdoc:
   swagger-ui:
     enabled: true
 
 schedules:
   timeslots:
-    path: src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+    path: configs/schedules.json
   kitchen:
-    path: rooms.json
+    path: configs/rooms.json

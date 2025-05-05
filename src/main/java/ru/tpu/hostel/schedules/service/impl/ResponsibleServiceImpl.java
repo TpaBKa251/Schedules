@@ -2,23 +2,27 @@ package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.tpu.hostel.internal.common.exception.ServiceException;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.internal.exception.ServiceException;
+import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
-import ru.tpu.hostel.schedules.client.UserServiceClient;
-import ru.tpu.hostel.schedules.dto.request.ResponsibleSetDto;
+import ru.tpu.hostel.schedules.dto.request.ResponsibleEditRequestDto;
+import ru.tpu.hostel.schedules.dto.request.ResponsibleSetRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ResponsibleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.UserNameWithIdResponse;
 import ru.tpu.hostel.schedules.dto.response.UserShortResponseDto;
+import ru.tpu.hostel.schedules.entity.EventType;
 import ru.tpu.hostel.schedules.entity.Responsible;
-import ru.tpu.hostel.schedules.enums.EventType;
+import ru.tpu.hostel.schedules.external.rest.user.UserServiceClient;
 import ru.tpu.hostel.schedules.mapper.ResponsibleMapper;
 import ru.tpu.hostel.schedules.repository.ResponsibleRepository;
-import ru.tpu.hostel.schedules.repository.TimeSlotRepository;
 import ru.tpu.hostel.schedules.service.ResponsibleService;
+import ru.tpu.hostel.schedules.service.responsible.assigner.ResponsibleAssignChecker;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,102 +30,111 @@ public class ResponsibleServiceImpl implements ResponsibleService {
 
     private final ResponsibleRepository responsibleRepository;
 
-    private final TimeSlotRepository timeSlotRepository;
-
     private final UserServiceClient userServiceClient;
 
     private final ResponsibleMapper responsibleMapper;
 
-    @Override
-    public ResponsibleResponseDto setResponsible(ResponsibleSetDto responsibleSetDto) {
-        //Ищется чувак по типу и дате (он на какую-то дату назначен),
-        // если ответственного еще нет вообще - попытка засетить его первый раз
-        Responsible responsible = responsibleRepository
-                .findByTypeAndDate(responsibleSetDto.type(), responsibleSetDto.date())
-                .orElse(firstSetResponsible(responsibleSetDto.type(), responsibleSetDto));
+    private final Set<ResponsibleAssignChecker> responsibleAssignCheckers;
 
-        // если ответственный засетился и у юзера есть соотв. роль ответственного - можем назначить
-        if (responsible != null && userHasResponsibleRole(responsibleSetDto.type(), responsibleSetDto)) {
-            responsible.setUser(responsibleSetDto.user());
-            responsibleRepository.save(responsible);
-            return responsibleMapper.mapToResponsibleResponseDto(responsible);
+    @Transactional
+    @Override
+    public ResponsibleResponseDto setResponsible(ResponsibleSetRequestDto responsibleSetRequestDto) {
+        responsibleAssignCheckers.stream()
+                .filter(checker -> checker.isApplicable(responsibleSetRequestDto.type()))
+                .findFirst()
+                .ifPresentOrElse(
+                        checker -> checker.canAssignResponsible(responsibleSetRequestDto),
+                        () -> {
+                            throw new ServiceException.NotImplemented(
+                                    "Невозможно обработать тип " + responsibleSetRequestDto.type().getEventTypeName()
+                            );
+                        }
+                );
+
+        ExecutionContext context = ExecutionContext.get();
+        if (responsibleSetRequestDto.user() == null
+                && Roles.canBeAssignedToResourceType(context.getUserRoles(), responsibleSetRequestDto.type())) {
+            return setResponsible(
+                    context.getUserID(),
+                    responsibleSetRequestDto.type(),
+                    responsibleSetRequestDto.date()
+            );
         }
-        else {
-            throw new ServiceException.NotFound("Responsible not found");
+
+        if (responsibleSetRequestDto.user() != null) {
+            List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleSetRequestDto.user());
+            if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
+                    && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsibleSetRequestDto.type())
+                    && Roles.canBeAssignedToResourceType(userToAssignRoles, responsibleSetRequestDto.type())) {
+                return setResponsible(
+                        responsibleSetRequestDto.user(),
+                        responsibleSetRequestDto.type(),
+                        responsibleSetRequestDto.date()
+                );
+            }
         }
+
+        throw new ServiceException.Forbidden("Вы не можете назначить ответственного на день");
     }
 
-    @Override
-    public ResponsibleResponseDto setYourselfResponsible(ResponsibleSetDto responsibleSetDto) {
-        //сюда прилетает ResponsibleSetDto, но user здесь null всегда,
-        //но из шлюза допом прилетает userId и список ролей пользователя
-
-        Roles[] userRoles = Arrays.stream(stringUserRoles).map(Roles::valueOf).toArray(Roles[]::new);
-
-        Responsible responsible = responsibleRepository
-                .findByTypeAndDate(type, responsibleSetDto.date())
-                .orElse(firstSetResponsible(type, responsibleSetDto));
-
-
-        // если ответственный засетился и у юзера есть соотв. роль ответственного - можем назначить
-        if (responsible != null && Roles.canBeAssignedToResourceType(userRoles, type)) {
-            responsible.setUser(userId);
-            responsibleRepository.save(responsible);
-            return responsibleMapper.mapToResponsibleResponseDto(responsible);
-        }
-        else {
-            throw new ServiceException.NotFound("Responsible not found");
-        }
+    private ResponsibleResponseDto setResponsible(UUID userId, EventType eventType, LocalDate date) {
+        Responsible responsible = new Responsible();
+        responsible.setDate(date);
+        responsible.setType(eventType);
+        responsible.setUser(userId);
+        return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
     }
 
-    //Для отображения человека с именем и ролью (Показывает, кто ответственный на день)
+    @Transactional
     @Override
-    public UserShortResponseDto getResponsible(LocalDate date, EventType type) {
-        //Ищется ответственный по типу и дате
-        Responsible responsible = responsibleRepository.findByTypeAndDate(type, date).orElseThrow(
-                ServiceException.NotFound::new
+    public ResponsibleResponseDto editResponsible(
+            UUID responsibleId,
+            ResponsibleEditRequestDto responsibleEditRequestDto
+    ) {
+        Responsible responsible = responsibleRepository.findById(responsibleId).orElseThrow(
+                () -> new ServiceException.NotFound("Ответственный не найден")
         );
+        ExecutionContext context = ExecutionContext.get();
+        if (responsibleEditRequestDto.user() == null
+                && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
+                && Roles.canBeAssignedToResourceType(context.getUserRoles(), responsible.getType())) {
+            responsible.setUser(context.getUserID());
+            return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+        }
 
-        //Если пользователь не найден (Не назначен), то на мобилку идет пустота
-        if (responsible.getUser() == null) {
+        List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleEditRequestDto.user());
+        if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
+                && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
+                && Roles.canBeAssignedToResourceType(userToAssignRoles, responsible.getType())) {
+            responsible.setUser(responsibleEditRequestDto.user());
+            return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+        }
+
+        throw new ServiceException.Forbidden("Вы не можете редактировать ответственного на день");
+    }
+
+    @Override
+    public UserShortResponseDto getResponsibleByTypeAndDate(LocalDate date, EventType type) {
+        Responsible responsible = responsibleRepository.findByTypeAndDate(type, date).orElse(null);
+
+        if (responsible == null || responsible.getUser() == null) {
             return new UserShortResponseDto("", "", "");
         }
 
         UserNameWithIdResponse user = userServiceClient.getUserByIdShort(responsible.getUser());
-
         return new UserShortResponseDto(user.firstName(), user.lastName(), user.middleName());
     }
 
-
-    private Responsible firstSetResponsible(EventType type, ResponsibleSetDto responsibleSetDto) {
-        //Ищем любой слот в этом дне
-        if (timeSlotRepository.findEarlierStartTimeByTypeAndStartTimeOnSpecificDay(
-                type,
-                responsibleSetDto.date().atTime(0, 0),
-                responsibleSetDto.date().atTime(23, 59)
-        ).isPresent()) {
-            //Назначаем ответственного, если нет ответственного и если вообще есть расписание (слоты) на день
-            var responsible = new Responsible();
-            responsible.setType(type);
-            responsible.setDate(responsibleSetDto.date());
-            return responsible;
-        } else {
-            return null;
-        }
+    @Override
+    public List<UserNameWithIdResponse> getAllResponsibleByTypeAndDate(LocalDate date, EventType type) {
+        return responsibleRepository.findAllByTypeAndDate(type, date).stream()
+                .filter(r -> r.getUser() != null)
+                .map(r -> responsibleMapper.mapToUserNameWithIdResponse(
+                        r.getId(),
+                        userServiceClient.getUserByIdShort(r.getUser())
+                ))
+                .toList();
     }
 
-    private Boolean userHasResponsibleRole(EventType type, ResponsibleSetDto responsibleSetDto) {
-        //Собирается все роли человека, которого ставим
-        List<String> roles = userServiceClient.getAllRolesByUserId(responsibleSetDto.user());
-        for (String role : roles) {
-            //Если есть у человека роль ответственного за что-то, то ответственному ставим человека,
-            // которому хотим записать(Если у человека есть роль на что-то, то его только на это и можно поставаить
-            // (Если поставить человека не ответственного за зал в ответственного, то нельзя так))
-            if (role.contains(type.toString())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
