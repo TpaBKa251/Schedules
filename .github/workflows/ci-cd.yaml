@@ -143,6 +143,8 @@ jobs:
       - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew build sonarqube --info
