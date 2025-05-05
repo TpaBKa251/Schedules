@@ -25,6 +25,9 @@ services:
     build:
       dockerfile: Dockerfile-local
       context: .
+      args:
+        INTERNAL_REPO_LOGIN: ${INTERNAL_REPO_LOGIN}
+        INTERNAL_REPO_PASSWORD: ${INTERNAL_REPO_PASSWORD}
     hostname: schedulesservice
     ports:
       - "8084:8080"
@@ -37,6 +40,8 @@ services:
       - RABBITMQ_USERNAME=schedule
       - RABBITMQ_PASSWORD=schedule
       - RABBITMQ_VIRTUAL_HOST=schedule-service
+      - INTERNAL_REPO_LOGIN=${INTERNAL_REPO_LOGIN}
+      - INTERNAL_REPO_PASSWORD=${INTERNAL_REPO_PASSWORD}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
