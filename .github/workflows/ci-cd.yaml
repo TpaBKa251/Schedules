@@ -171,7 +171,12 @@ jobs:
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           IMAGE=ghcr.io/tpabka251/schedulesservice
-          docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} .
+          docker build \
+            --build-arg INTERNAL_REPO_LOGIN=${INTERNAL_REPO_LOGIN} \
+            --build-arg INTERNAL_REPO_PASSWORD=${INTERNAL_REPO_PASSWORD} \
+            -t $IMAGE:latest \
+            -t $IMAGE:${{ github.sha }} \
+            .
           docker push $IMAGE:latest
           docker push $IMAGE:${{ github.sha }}
 
