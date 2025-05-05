@@ -1,0 +1,2 @@
+ALTER TABLE schedules.responsibles
+DROP CONSTRAINT uq_responsible_type_and_date;

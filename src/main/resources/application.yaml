@@ -69,6 +69,10 @@ queueing:
     exchangeName: schedule-timeslots-exchange
     queueName: schedule-timeslots-queue
     routingKey: schedule-timeslots
+  cancel:
+    exchangeName: schedule-timeslots-exchange
+    queueName: schedule-timeslots-cancel-queue
+    routingKey: schedule-timeslots-cancel
 
 otlp:
   tracing:
@@ -77,12 +81,16 @@ otlp:
     timeout: 5000
     service-name: schedule-service
 
+rest:
+  base-url:
+    user-service: http://userservice:8080
+
 springdoc:
   swagger-ui:
     enabled: true
 
 schedules:
   timeslots:
-    path: src/main/java/ru/tpu/hostel/schedules/schedules/schedules.json
+    path: configs/schedules.json
   kitchen:
-    path: rooms.json
+    path: configs/rooms.json

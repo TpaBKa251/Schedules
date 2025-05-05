@@ -13,3 +13,7 @@ otlp:
   tracing:
     export-enabled: false
     endpoint: http://localhost:4317
+
+rest:
+  base-url:
+    user-service: http://localhost:8081

@@ -1,6 +1,6 @@
 package ru.tpu.hostel.schedules.service;
 
-import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
+import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
 
 import java.time.LocalDate;
@@ -11,7 +11,7 @@ public interface KitchenSchedulesService {
 
     List<KitchenScheduleResponseDto> getKitchenSchedule(UUID userId, int page, int size);
 
-    List<ActiveEventDto> getActiveEvent(UUID userId);
+    List<ActiveEventResponseDto> getActiveEvent(UUID userId);
 
     KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date, UUID userId);
 }

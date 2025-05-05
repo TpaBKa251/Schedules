@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
+import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
 import ru.tpu.hostel.schedules.service.KitchenSchedulesService;
 
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +31,7 @@ public class KitchenScheduleController {
     }
 
     @GetMapping("/kitchen/get/on/room/{userId}")
-    public List<ActiveEventDto> getActiveEvent(@PathVariable("userId") UUID userId) {
+    public List<ActiveEventResponseDto> getActiveEvent(@PathVariable("userId") UUID userId) {
         return kitchenSchedulesService.getActiveEvent(userId);
     }
 
