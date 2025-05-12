@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.internal.common.logging.LogFilter;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.config.schedule.RoomsConfig;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
@@ -31,6 +33,7 @@ public class KitchenScheduleGenerator {
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
     @Bean
+    @LogFilter(enableMethodLogging = false)
     public ApplicationRunner checkSchedulesOnStart() {
         return args -> checkSchedules();
     }

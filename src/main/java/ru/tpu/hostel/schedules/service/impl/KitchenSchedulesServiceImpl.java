@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
@@ -30,7 +31,8 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     private final UserServiceClient userServiceClient;
 
     @Override
-    public List<KitchenScheduleResponseDto> getKitchenSchedule(UUID userId, int page, int size) {
+    public List<KitchenScheduleResponseDto> getKitchenSchedule(int page, int size) {
+        UUID userId = ExecutionContext.get().getUserID();
         String floor = String.valueOf(userServiceClient.getRoomNumber(userId).charAt(0));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -84,7 +86,8 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Override
-    public KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date, UUID userId) {
+    public KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date) {
+        UUID userId = ExecutionContext.get().getUserID();
         String roomNumber = userServiceClient.getRoomNumber(userId);
         String floor = String.valueOf(roomNumber.charAt(0));
 

@@ -21,13 +21,12 @@ public class KitchenScheduleController {
 
     private final KitchenSchedulesService kitchenSchedulesService;
 
-    @GetMapping("/kitchen/get/on/floor/{userId}")
+    @GetMapping("/kitchen/get/on/floor")
     public List<KitchenScheduleResponseDto> getKitchenSchedule(
-            @PathVariable("userId")UUID userId,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        return kitchenSchedulesService.getKitchenSchedule(userId, page, size);
+        return kitchenSchedulesService.getKitchenSchedule(page, size);
     }
 
     @GetMapping("/kitchen/get/on/room/{userId}")
@@ -35,11 +34,10 @@ public class KitchenScheduleController {
         return kitchenSchedulesService.getActiveEvent(userId);
     }
 
-    @GetMapping("/kitchen/get/on/floor/date/{date}/{userId}")
+    @GetMapping("/kitchen/get/on/floor/date/{date}")
     public KitchenScheduleResponseDto getKitchenSchedule(
-            @PathVariable("date")LocalDate date,
-            @PathVariable("userId")UUID userId
+            @PathVariable("date")LocalDate date
     ) {
-        return kitchenSchedulesService.getKitchenScheduleOnDate(date, userId);
+        return kitchenSchedulesService.getKitchenScheduleOnDate(date);
     }
 }

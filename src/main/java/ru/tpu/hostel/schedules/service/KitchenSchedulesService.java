@@ -9,9 +9,9 @@ import java.util.UUID;
 
 public interface KitchenSchedulesService {
 
-    List<KitchenScheduleResponseDto> getKitchenSchedule(UUID userId, int page, int size);
+    List<KitchenScheduleResponseDto> getKitchenSchedule(int page, int size);
 
     List<ActiveEventResponseDto> getActiveEvent(UUID userId);
 
-    KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date, UUID userId);
+    KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date);
 }

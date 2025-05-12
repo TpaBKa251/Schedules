@@ -59,19 +59,9 @@ public class TimeslotServiceImpl implements TimeslotService {
             throw new ServiceException.BadRequest("Вы можете просматривать и бронировать слоты только на неделю вперед");
         }
 
-        List<Timeslot> timeSlots = repository.findByType(bookingType);
-        List<TimeslotResponse> availableSlots = new ArrayList<>();
-        for (Timeslot timeSlot : timeSlots) {
-            if (timeSlot.getStartTime().toLocalDate().equals(date)
-                    && timeSlot.getStartTime().isAfter(TimeUtil.now())
-            ) {
-                if (timeSlot.getBookingCount() < timeSlot.getLimit()) {
-                    availableSlots.add(TimeslotMapper.mapTimeSlotToTimeSlotResponse(timeSlot));
-                }
-            }
-        }
-
-        return availableSlots;
+        return repository.findAllAvailableTimeslotsOnDay(bookingType, date, TimeUtil.now()).stream()
+                .map(TimeslotMapper::mapTimeSlotToTimeSlotResponse)
+                .toList();
     }
 
 }

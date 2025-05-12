@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.internal.common.logging.LogFilter;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.entity.Timeslot;
 import ru.tpu.hostel.schedules.entity.EventType;
@@ -50,6 +52,7 @@ public class TimeslotGenerator {
     private final TimeslotRepository timeSlotRepository;
 
     @Bean
+    @LogFilter(enableMethodLogging = false)
     public ApplicationRunner initializeTimeSlots() {
         return args -> generateSlotsForWeek();
     }

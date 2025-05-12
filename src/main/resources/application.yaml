@@ -5,17 +5,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, prometheus, info, beans, trace
   endpoint:
     health:
       show-details: always
   tracing:
     enabled: true
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: http://localhost:4317
 
 logging:
   level:
@@ -55,6 +50,11 @@ spring:
     listener:
       direct:
         observation-enabled: true
+
+  cloud:
+    openfeign:
+      micrometer:
+        enabled: true
 
 rabbitmq:
   timeslots:
