@@ -14,7 +14,6 @@ import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
