@@ -1,20 +1,22 @@
 package ru.tpu.hostel.schedules.repository;
 
+import jakarta.persistence.LockModeType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -50,11 +52,10 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LIKE :floor
             ORDER BY k.date""",
             nativeQuery = true)
-    Page<KitchenSchedule> findAllOnFloor(
+    List<KitchenSchedule> findAllOnFloor(
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
-            String floor,
-            Pageable pageable
+            String floor
     );
 
     @Query(value = """
@@ -63,7 +64,7 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LIKE CAST(:floor AS TEXT)
             ORDER BY k.room_number""",
             nativeQuery = true)
-    Page<String> findAllRoomsOnFloor(@Param("floor") String floor, Pageable pageable);
+    Set<String> findAllRoomsOnFloor(@Param("floor") String floor);
 
     @Query(value = """
             SELECT * FROM schedules.kitchen k
@@ -76,6 +77,7 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
             String floor,
+            @Param("date")
             LocalDate date
     );
 
@@ -92,6 +94,37 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
             String floor,
+            @Param("date")
+            LocalDate date
+    );
+
+    Optional<KitchenSchedule> findKitchenScheduleById(UUID id);
+
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = :checked")
+    List<KitchenSchedule> findAllByDateAndChecked(@Param("date") LocalDate date, @Param("checked") boolean checked);
+
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT k FROM KitchenSchedule k WHERE SUBSTRING(k.roomNumber, 1, 1) = :floor " +
+            "AND k.date >= :fromDate")
+    List<KitchenSchedule> findAllByFloorFromDate(
+            @Param("floor") String floor,
+            @Param("fromDate") LocalDate fromDate);
+
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(value = """
+            SELECT * FROM schedules.kitchen k
+            WHERE SUBSTRING(k.room_number from 1 for 1)
+            LIKE CAST(:floor AS TEXT)
+            and k.date = :date
+            ORDER BY k.room_number""",
+            nativeQuery = true)
+    Optional<KitchenSchedule> getScheduleForUpdate(
+            @Param("floor")
+            @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
+            String floor,
+            @Param("date")
             LocalDate date
     );
 }
