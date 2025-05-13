@@ -38,6 +38,34 @@ public class KitchenScheduleGenerator {
         return args -> checkSchedules();
     }
 
+    @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
+    @Transactional
+    public void handleMissedSchedules() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        List<KitchenSchedule> missedSchedules = kitchenSchedulesRepository
+                .findAllByDateAndChecked(yesterday, false);
+
+        for (KitchenSchedule missedSchedule : missedSchedules) {
+            String roomNumber = missedSchedule.getRoomNumber();
+            String floor = String.valueOf(roomNumber.charAt(0));
+
+            // Переносим все дежурства, включая пропущенное, на следующий день
+            shiftFloorSchedules(floor, yesterday);
+
+        }
+    }
+
+    private void shiftFloorSchedules(String floor, LocalDate fromDate) {
+        List<KitchenSchedule> schedulesToShift = kitchenSchedulesRepository
+                .findAllByFloorFromDate(floor, fromDate);
+
+        for (KitchenSchedule schedule : schedulesToShift) {
+            schedule.setDate(schedule.getDate().plusDays(1));
+        }
+        kitchenSchedulesRepository.saveAll(schedulesToShift);
+    }
+
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
     public void checkSchedules() {
         for (int i = 2; i <= 5; i++) {
@@ -65,16 +93,6 @@ public class KitchenScheduleGenerator {
 
                 for (String room : rooms) {
                     KitchenSchedule kitchenSchedule = new KitchenSchedule();
-
-                    kitchenSchedule.setRoomNumber(room);
-                    kitchenSchedule.setDate(scheduleDate);
-                    kitchenSchedule.setScheduleNumber(lastNumber == null ? 1 : lastNumber + 1);
-                    kitchenSchedule.setChecked(false);
-                    schedules.add(kitchenSchedule);
-
-                    scheduleDate = scheduleDate.plusDays(1);
-
-                    kitchenSchedule = new KitchenSchedule();
 
                     kitchenSchedule.setRoomNumber(room);
                     kitchenSchedule.setDate(scheduleDate);

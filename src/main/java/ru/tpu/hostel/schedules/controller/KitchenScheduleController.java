@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.schedules.dto.request.MarkScheduleCompletedDto;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
-import ru.tpu.hostel.schedules.dto.response.ActiveEventDto;
+import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
+import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
 import ru.tpu.hostel.schedules.service.KitchenSchedulesService;
 
 import java.time.LocalDate;
@@ -27,12 +28,12 @@ public class KitchenScheduleController {
     private final KitchenSchedulesService kitchenSchedulesService;
 
     @GetMapping("/kitchen/get/on/floor")
-    public List<KitchenScheduleResponseDto> getKitchenSchedule() {
+    public List<KitchenScheduleShortResponseDto> getKitchenSchedule() {
         return kitchenSchedulesService.getKitchenSchedule();
     }
 
     @GetMapping("/kitchen/get/on/room/{userId}")
-    public List<ActiveEventDto> getActiveEvent(@PathVariable("userId") UUID userId) {
+    public List<ActiveEventResponseDto> getActiveEvent(@PathVariable("userId") UUID userId) {
         return kitchenSchedulesService.getActiveEvent(userId);
     }
 
