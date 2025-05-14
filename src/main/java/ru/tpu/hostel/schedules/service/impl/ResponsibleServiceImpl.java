@@ -2,6 +2,7 @@ package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
@@ -85,7 +86,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Override
     public ResponsibleResponseDto editResponsible(
             UUID responsibleId,

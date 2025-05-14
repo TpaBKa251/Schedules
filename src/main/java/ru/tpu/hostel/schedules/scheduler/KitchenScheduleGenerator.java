@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.config.schedule.RoomsConfig;
@@ -30,7 +31,7 @@ public class KitchenScheduleGenerator {
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
     @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void handleMissedSchedules() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
@@ -58,7 +59,7 @@ public class KitchenScheduleGenerator {
     }
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void checkSchedules() {
         kitchenSchedulesRepository.lockAllTable();
         for (int i = 2; i <= 5; i++) {

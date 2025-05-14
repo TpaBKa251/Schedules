@@ -3,6 +3,7 @@ package ru.tpu.hostel.schedules.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.TimeUtil;
@@ -23,7 +24,7 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     private final TimeslotRepository repository;
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
         Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now())
@@ -37,7 +38,7 @@ public class TimeslotServiceImpl implements TimeslotService {
         }
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public void cancelTimeSlot(UUID slotId) {
         Timeslot timeSlot = repository.findSlotForUpdate(slotId)
