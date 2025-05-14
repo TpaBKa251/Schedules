@@ -123,7 +123,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverSwap(OptimisticLockException e) {
+    public void recoverSwap(OptimisticLockException e, SwapRequestDto swapRequestDto) {
         throw new ServiceException.Conflict("Не удалось переставить дежурства. Попробуйте снова");
     }
 
@@ -150,7 +150,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverMarkScheduleCompleted(OptimisticLockException e) {
+    public void recoverMarkScheduleCompleted(OptimisticLockException e, UUID kitchenScheduleId) {
         throw new ServiceException.Conflict("Не удалось изменить отметку дежурства. Попробуйте позже");
     }
 
@@ -183,7 +183,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverDeleteById(OptimisticLockException e) {
+    public void recoverDeleteById(OptimisticLockException e, UUID id) {
         throw new ServiceException.Conflict("Не удалось удалить дежурство. Попробуйте позже");
     }
 
