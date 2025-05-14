@@ -3,6 +3,7 @@ package ru.tpu.hostel.schedules.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +62,12 @@ public class KitchenScheduleController {
     public ResponseEntity<?> markScheduleCompleted(
             @Valid @RequestBody MarkScheduleCompletedDto markScheduleCompletedDto) {
         kitchenSchedulesService.markScheduleCompleted(markScheduleCompletedDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/kitchen/{kitchenScheduleId}")
+    public ResponseEntity<?> deleteKitchenSchedule(UUID kitchenScheduleId) {
+        kitchenScheduleId.deleteById(kitchenScheduleId);
         return ResponseEntity.ok().build();
     }
 }

@@ -26,6 +26,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
+    private static final String SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE = "Дежурство для комнаты %s на дату %s не найдено";
+
+    private static final String SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE
+            = "У вас нет прав редактировать расписание другого этажа";
+
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
     private final UserServiceClient userServiceClient;
@@ -70,7 +75,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
     @Override
     public KitchenScheduleResponseDto getKitchenScheduleById(UUID id) {
-        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findKitchenScheduleById(id)
+        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findById(id)
                 .orElseThrow(() -> new ServiceException.NotFound("Расписание не найдено"));
         List<UserResponseDto> users = userServiceClient.getAllInRooms(new String[]{kitchenSchedule.getRoomNumber()});
 
@@ -80,22 +85,32 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     @Override
     @Transactional
     public void swap(SwapRequestDto swapRequestDto) {
-        // Проверяем, что комнаты на одном этаже
-        if (swapRequestDto.roomNumberA().charAt(0) != swapRequestDto.roomNumberB().charAt(0)) {
-            throw new ServiceException.BadRequest("Комнаты должны быть на одном этаже");
+        ExecutionContext context = ExecutionContext.get();
+        String roomNumber = userServiceClient.getRoomNumber(context.getUserID());
+
+        char responsibleFloor = roomNumber.charAt(0);
+        char roomAFloor = swapRequestDto.roomNumberA().charAt(0);
+        char roomBFloor = swapRequestDto.roomNumberB().charAt(0);
+
+        if (responsibleFloor != roomAFloor || responsibleFloor != roomBFloor) {
+            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
         }
 
         KitchenSchedule scheduleA = kitchenSchedulesRepository.getScheduleForUpdate(
-                        String.valueOf(swapRequestDto.roomNumberA().charAt(0)), swapRequestDto.dateA())
+                        String.valueOf(roomAFloor), swapRequestDto.dateA())
                 .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format("Дежурство для комнаты %s на дату %s не найдено",
+                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
                                 swapRequestDto.roomNumberA(), swapRequestDto.dateA())));
 
         KitchenSchedule scheduleB = kitchenSchedulesRepository.getScheduleForUpdate(
-                        String.valueOf(swapRequestDto.roomNumberB().charAt(0)), swapRequestDto.dateB())
+                        String.valueOf(roomBFloor), swapRequestDto.dateB())
                 .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format("Дежурство для комнаты %s на дату %s не найдено",
+                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
                                 swapRequestDto.roomNumberB(), swapRequestDto.dateB())));
+
+        if (!scheduleA.getScheduleNumber().equals(scheduleB.getScheduleNumber())) {
+            throw new ServiceException.BadRequest("Вы не можете переставлять местами дежурства из разных расписаний");
+        }
 
         String tempRoom = scheduleA.getRoomNumber();
         scheduleA.setRoomNumber(scheduleB.getRoomNumber());
@@ -108,10 +123,17 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     @Override
     @Transactional
     public void markScheduleCompleted(MarkScheduleCompletedDto markScheduleCompletedDto) {
+        ExecutionContext context = ExecutionContext.get();
+        String roomNumber = userServiceClient.getRoomNumber(context.getUserID());
+
+        if (roomNumber.charAt(0) != markScheduleCompletedDto.roomNumber().charAt(0)) {
+            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
+        }
+
         KitchenSchedule schedule = kitchenSchedulesRepository.getScheduleForUpdate(
                         String.valueOf(markScheduleCompletedDto.roomNumber().charAt(0)), markScheduleCompletedDto.date())
                 .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format("Дежурство для комнаты %s на дату %s не найдено",
+                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
                                 markScheduleCompletedDto.roomNumber(), markScheduleCompletedDto.date())));
 
         schedule.setChecked(markScheduleCompletedDto.completed());

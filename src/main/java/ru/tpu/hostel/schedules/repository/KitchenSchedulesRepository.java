@@ -98,8 +98,8 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LocalDate date
     );
 
-    Optional<KitchenSchedule> findKitchenScheduleById(UUID id);
-
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = :checked")
     List<KitchenSchedule> findAllByDateAndChecked(@Param("date") LocalDate date, @Param("checked") boolean checked);
 
@@ -112,13 +112,14 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             @Param("fromDate") LocalDate fromDate);
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query(value = """
             SELECT * FROM schedules.kitchen k
             WHERE SUBSTRING(k.room_number from 1 for 1)
             LIKE CAST(:floor AS TEXT)
             and k.date = :date
-            ORDER BY k.room_number""",
+            ORDER BY k.room_number
+            FOR UPDATE
+            """,
             nativeQuery = true)
     Optional<KitchenSchedule> getScheduleForUpdate(
             @Param("floor")
@@ -127,4 +128,10 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             @Param("date")
             LocalDate date
     );
+
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT k FROM KitchenSchedule k")
+    void lockAllTable();
+
 }

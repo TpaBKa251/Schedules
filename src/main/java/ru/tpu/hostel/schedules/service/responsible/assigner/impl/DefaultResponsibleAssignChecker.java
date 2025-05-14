@@ -2,11 +2,8 @@ package ru.tpu.hostel.schedules.service.responsible.assigner.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.tpu.hostel.schedules.external.rest.user.UserServiceClient;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleSetRequestDto;
 import ru.tpu.hostel.schedules.entity.EventType;
-import ru.tpu.hostel.schedules.repository.ResponsibleRepository;
-import ru.tpu.hostel.schedules.service.ResponsibleService;
 import ru.tpu.hostel.schedules.service.responsible.assigner.ResponsibleAssignChecker;
 
 import java.util.Set;
@@ -19,10 +16,9 @@ public class DefaultResponsibleAssignChecker implements ResponsibleAssignChecker
             EventType.SOOP
     );
 
-    private final ResponsibleRepository responsibleRepository;
-
     @Override
     public void canAssignResponsible(ResponsibleSetRequestDto responsibleSetRequestDto) {
+        // Пока не реализован (нужно ли?)
     }
 
     @Override

@@ -3,18 +3,14 @@ package ru.tpu.hostel.schedules.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.tpu.hostel.internal.common.logging.LogFilter;
 import ru.tpu.hostel.internal.utils.TimeUtil;
-import ru.tpu.hostel.schedules.entity.Timeslot;
-import ru.tpu.hostel.schedules.entity.EventType;
-import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
+import ru.tpu.hostel.schedules.entity.EventType;
+import ru.tpu.hostel.schedules.entity.Timeslot;
+import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -50,12 +46,6 @@ public class TimeslotGenerator {
     private static final int ONE_DAY = 1;
 
     private final TimeslotRepository timeSlotRepository;
-
-    @Bean
-    @LogFilter(enableMethodLogging = false)
-    public ApplicationRunner initializeTimeSlots() {
-        return args -> generateSlotsForWeek();
-    }
 
     /**
      * Генерирует слот на последний день (через неделю)

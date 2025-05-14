@@ -91,7 +91,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             UUID responsibleId,
             ResponsibleEditRequestDto responsibleEditRequestDto
     ) {
-        Responsible responsible = responsibleRepository.findById(responsibleId).orElseThrow(
+        Responsible responsible = responsibleRepository.findByIdForUpdate(responsibleId).orElseThrow(
                 () -> new ServiceException.NotFound("Ответственный не найден")
         );
         ExecutionContext context = ExecutionContext.get();

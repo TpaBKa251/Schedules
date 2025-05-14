@@ -4,13 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tpu.hostel.internal.common.logging.LogFilter;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.config.schedule.RoomsConfig;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
@@ -31,12 +28,6 @@ public class KitchenScheduleGenerator {
     private String filePath;
 
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
-
-    @Bean
-    @LogFilter(enableMethodLogging = false)
-    public ApplicationRunner checkSchedulesOnStart() {
-        return args -> checkSchedules();
-    }
 
     @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
     @Transactional
@@ -67,7 +58,9 @@ public class KitchenScheduleGenerator {
     }
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
+    @Transactional
     public void checkSchedules() {
+        kitchenSchedulesRepository.lockAllTable();
         for (int i = 2; i <= 5; i++) {
             LocalDate lastDate = kitchenSchedulesRepository.findLastDateOfScheduleByFloor(i).orElse(null);
             Integer lastNumber = kitchenSchedulesRepository.findLastNumberOfScheduleByFloor(i).orElse(null);
