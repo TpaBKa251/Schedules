@@ -1,9 +1,8 @@
 package ru.tpu.hostel.schedules.service;
 
-import ru.tpu.hostel.schedules.dto.request.MarkScheduleCompletedDto;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
-import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
+import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
 
 import java.time.LocalDate;
@@ -22,5 +21,7 @@ public interface KitchenSchedulesService {
 
     void swap(SwapRequestDto swapRequestDto);
 
-    void markScheduleCompleted(MarkScheduleCompletedDto markScheduleCompletedDto);
+    void markSchedule(UUID kitchenScheduleId);
+
+    void deleteById(UUID id);
 }

@@ -1,12 +1,16 @@
 package ru.tpu.hostel.schedules.service.impl;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.TimeUtil;
-import ru.tpu.hostel.schedules.dto.request.MarkScheduleCompletedDto;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
@@ -25,8 +29,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
-
-    private static final String SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE = "Дежурство для комнаты %s на дату %s не найдено";
 
     private static final String SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE
             = "У вас нет прав редактировать расписание другого этажа";
@@ -83,60 +85,106 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Retryable(
+            retryFor = OptimisticLockException.class,
+            backoff = @Backoff(delay = 100, multiplier = 2),
+            recover = "recoverSwap"
+    )
     public void swap(SwapRequestDto swapRequestDto) {
-        ExecutionContext context = ExecutionContext.get();
-        String roomNumber = userServiceClient.getRoomNumber(context.getUserID());
+        List<KitchenSchedule> schedulesForSwap = kitchenSchedulesRepository.findDutiesForSwap(
+                swapRequestDto.dutyId1(),
+                swapRequestDto.dutyId1()
+        );
+        if (schedulesForSwap.size() != 2) {
+            throw new ServiceException.BadRequest("Дежурства для перестановки не найдены");
+        }
 
+        KitchenSchedule kitchenScheduleA = schedulesForSwap.get(0);
+        KitchenSchedule kitchenScheduleB = schedulesForSwap.get(1);
+
+        String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
         char responsibleFloor = roomNumber.charAt(0);
-        char roomAFloor = swapRequestDto.roomNumberA().charAt(0);
-        char roomBFloor = swapRequestDto.roomNumberB().charAt(0);
-
+        char roomAFloor = kitchenScheduleA.getRoomNumber().charAt(0);
+        char roomBFloor = kitchenScheduleB.getRoomNumber().charAt(0);
         if (responsibleFloor != roomAFloor || responsibleFloor != roomBFloor) {
             throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
         }
 
-        KitchenSchedule scheduleA = kitchenSchedulesRepository.getScheduleForUpdate(
-                        String.valueOf(roomAFloor), swapRequestDto.dateA())
-                .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
-                                swapRequestDto.roomNumberA(), swapRequestDto.dateA())));
-
-        KitchenSchedule scheduleB = kitchenSchedulesRepository.getScheduleForUpdate(
-                        String.valueOf(roomBFloor), swapRequestDto.dateB())
-                .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
-                                swapRequestDto.roomNumberB(), swapRequestDto.dateB())));
-
-        if (!scheduleA.getScheduleNumber().equals(scheduleB.getScheduleNumber())) {
+        if (!kitchenScheduleA.getScheduleNumber().equals(kitchenScheduleB.getScheduleNumber())) {
             throw new ServiceException.BadRequest("Вы не можете переставлять местами дежурства из разных расписаний");
         }
 
-        String tempRoom = scheduleA.getRoomNumber();
-        scheduleA.setRoomNumber(scheduleB.getRoomNumber());
-        scheduleB.setRoomNumber(tempRoom);
+        String tempRoom = kitchenScheduleA.getRoomNumber();
+        kitchenScheduleA.setRoomNumber(kitchenScheduleB.getRoomNumber());
+        kitchenScheduleB.setRoomNumber(tempRoom);
 
-        kitchenSchedulesRepository.save(scheduleA);
-        kitchenSchedulesRepository.save(scheduleB);
+        kitchenSchedulesRepository.saveAll(List.of(kitchenScheduleA, kitchenScheduleB));
+    }
+
+    @Recover
+    public void recoverSwap(OptimisticLockException e) {
+        throw new ServiceException.Conflict("Не удалось переставить дежурства. Попробуйте снова");
     }
 
     @Override
-    @Transactional
-    public void markScheduleCompleted(MarkScheduleCompletedDto markScheduleCompletedDto) {
-        ExecutionContext context = ExecutionContext.get();
-        String roomNumber = userServiceClient.getRoomNumber(context.getUserID());
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Retryable(
+            retryFor = OptimisticLockException.class,
+            backoff = @Backoff(delay = 100, multiplier = 2),
+            recover = "recoverMarkScheduleCompleted"
+    )
+    public void markSchedule(UUID kitchenScheduleId) {
+        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(kitchenScheduleId)
+                .orElseThrow(() -> new ServiceException.NotFound("Дежурство не найдено"));
 
-        if (roomNumber.charAt(0) != markScheduleCompletedDto.roomNumber().charAt(0)) {
+        String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
+        char responsibleFloor = roomNumber.charAt(0);
+        char roomFloor = kitchenSchedule.getRoomNumber().charAt(0);
+        if (responsibleFloor != roomFloor) {
             throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
         }
 
-        KitchenSchedule schedule = kitchenSchedulesRepository.getScheduleForUpdate(
-                        String.valueOf(markScheduleCompletedDto.roomNumber().charAt(0)), markScheduleCompletedDto.date())
-                .orElseThrow(() -> new ServiceException.NotFound(
-                        String.format(SCHEDULE_NOT_FOUND_EXCEPTION_MESSAGE,
-                                markScheduleCompletedDto.roomNumber(), markScheduleCompletedDto.date())));
-
-        schedule.setChecked(markScheduleCompletedDto.completed());
-        kitchenSchedulesRepository.save(schedule);
+        kitchenSchedule.setChecked(!kitchenSchedule.getChecked());
+        kitchenSchedulesRepository.save(kitchenSchedule);
     }
+
+    @Recover
+    public void recoverMarkScheduleCompleted(OptimisticLockException e) {
+        throw new ServiceException.Conflict("Не удалось изменить отметку дежурства. Попробуйте позже");
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Override
+    @Retryable(
+            retryFor = OptimisticLockException.class,
+            backoff = @Backoff(delay = 100, multiplier = 2),
+            recover = "recoverDeleteById"
+    )
+    public void deleteById(UUID id) {
+        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(id)
+                .orElseThrow(() -> new ServiceException.NotFound("Дежурство не найдено"));
+
+        String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
+        String floor = String.valueOf(roomNumber.charAt(0));
+        if (roomNumber.charAt(0) != kitchenSchedule.getRoomNumber().charAt(0)) {
+            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
+        }
+
+        LocalDate dateForShift = kitchenSchedule.getDate();
+        kitchenSchedulesRepository.delete(kitchenSchedule);
+
+        List<KitchenSchedule> shiftedSchedule = kitchenSchedulesRepository
+                .findAllByFloorFromDate(floor, dateForShift)
+                .stream()
+                .peek(schedule -> schedule.setDate(schedule.getDate().minusDays(1)))
+                .toList();
+        kitchenSchedulesRepository.saveAll(shiftedSchedule);
+    }
+
+    @Recover
+    public void recoverDeleteById(OptimisticLockException e) {
+        throw new ServiceException.Conflict("Не удалось удалить дежурство. Попробуйте позже");
+    }
+
 }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tpu.hostel.schedules.dto.request.MarkScheduleCompletedDto;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
@@ -45,9 +45,9 @@ public class KitchenScheduleController {
         return kitchenSchedulesService.getKitchenScheduleOnDate(date);
     }
 
-    @GetMapping("/kitchen/get/{kitchenScheduleId}")
+    @GetMapping("/kitchen")
     public KitchenScheduleResponseDto getKitchenScheduleById(
-            @PathVariable("kitchenScheduleId") UUID kitchenScheduleId
+            @RequestParam("kitchenScheduleId") UUID kitchenScheduleId
     ) {
         return kitchenSchedulesService.getKitchenScheduleById(kitchenScheduleId);
     }
@@ -58,16 +58,17 @@ public class KitchenScheduleController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/kitchen/mark-completed")
+    @PatchMapping("/kitchen/mark/{kitchenScheduleId}")
     public ResponseEntity<?> markScheduleCompleted(
-            @Valid @RequestBody MarkScheduleCompletedDto markScheduleCompletedDto) {
-        kitchenSchedulesService.markScheduleCompleted(markScheduleCompletedDto);
+            @PathVariable UUID kitchenScheduleId
+    ) {
+        kitchenSchedulesService.markSchedule(kitchenScheduleId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/kitchen/{kitchenScheduleId}")
-    public ResponseEntity<?> deleteKitchenSchedule(UUID kitchenScheduleId) {
-        kitchenScheduleId.deleteById(kitchenScheduleId);
+    public ResponseEntity<?> deleteKitchenSchedule(@PathVariable UUID kitchenScheduleId) {
+        kitchenSchedulesService.deleteById(kitchenScheduleId);
         return ResponseEntity.ok().build();
     }
 }

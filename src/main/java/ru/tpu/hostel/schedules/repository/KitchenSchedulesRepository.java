@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -133,5 +134,24 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k")
     void lockAllTable();
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            DELETE FROM schedules.kitchen
+            WHERE id = :id
+            AND SUBSTRING(room_number from 1 for 1) = :floor""",
+            nativeQuery = true)
+    int deleteByIdOnFloor(@Param("id") UUID id, @Param("floor") String floor);
+
+    @Transactional
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.id = :id")
+    Optional<KitchenSchedule> findByIdForUpdateOptimistic(@Param("id") UUID id);
+
+    @Transactional
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.id IN (:id1, :id2)")
+    List<KitchenSchedule> findDutiesForSwap(@Param("id1") UUID id1, @Param("id2") UUID id2);
 
 }
