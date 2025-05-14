@@ -1,7 +1,7 @@
 package ru.tpu.hostel.schedules.service.impl;
 
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -87,7 +87,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
-            retryFor = OptimisticLockException.class,
+            retryFor = ObjectOptimisticLockingFailureException.class,
             backoff = @Backoff(delay = 100, multiplier = 2),
             recover = "recoverSwap"
     )
@@ -123,14 +123,14 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverSwap(OptimisticLockException e, SwapRequestDto swapRequestDto) {
+    public void recoverSwap(ObjectOptimisticLockingFailureException e, SwapRequestDto swapRequestDto) {
         throw new ServiceException.Conflict("Не удалось переставить дежурства. Попробуйте снова");
     }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
-            retryFor = OptimisticLockException.class,
+            retryFor = ObjectOptimisticLockingFailureException.class,
             backoff = @Backoff(delay = 100, multiplier = 2),
             recover = "recoverMarkScheduleCompleted"
     )
@@ -150,14 +150,14 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverMarkScheduleCompleted(OptimisticLockException e, UUID kitchenScheduleId) {
+    public void recoverMarkScheduleCompleted(ObjectOptimisticLockingFailureException e, UUID kitchenScheduleId) {
         throw new ServiceException.Conflict("Не удалось изменить отметку дежурства. Попробуйте позже");
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Override
     @Retryable(
-            retryFor = OptimisticLockException.class,
+            retryFor = ObjectOptimisticLockingFailureException.class,
             backoff = @Backoff(delay = 100, multiplier = 2),
             recover = "recoverDeleteById"
     )
@@ -183,7 +183,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Recover
-    public void recoverDeleteById(OptimisticLockException e, UUID id) {
+    public void recoverDeleteById(ObjectOptimisticLockingFailureException e, UUID id) {
         throw new ServiceException.Conflict("Не удалось удалить дежурство. Попробуйте позже");
     }
 
