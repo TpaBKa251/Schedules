@@ -94,7 +94,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     public void swap(SwapRequestDto swapRequestDto) {
         List<KitchenSchedule> schedulesForSwap = kitchenSchedulesRepository.findDutiesForSwap(
                 swapRequestDto.dutyId1(),
-                swapRequestDto.dutyId1()
+                swapRequestDto.dutyId2()
         );
         if (schedulesForSwap.size() != 2) {
             throw new ServiceException.BadRequest("Дежурства для перестановки не найдены");
