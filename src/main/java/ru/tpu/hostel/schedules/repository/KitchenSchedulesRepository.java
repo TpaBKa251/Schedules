@@ -133,7 +133,7 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k")
-    void lockAllTable();
+    List<KitchenSchedule> lockAllTable();
 
     @Modifying
     @Transactional
