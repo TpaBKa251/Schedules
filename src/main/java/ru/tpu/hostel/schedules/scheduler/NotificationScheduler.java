@@ -22,7 +22,6 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-//@EnableScheduling
 @RequiredArgsConstructor
 public class NotificationScheduler {
 

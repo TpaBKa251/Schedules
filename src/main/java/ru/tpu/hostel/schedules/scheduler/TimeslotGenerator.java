@@ -3,7 +3,6 @@ package ru.tpu.hostel.schedules.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.internal.utils.TimeUtil;
@@ -27,7 +26,6 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@EnableScheduling
 public class TimeslotGenerator {
 
     /**
