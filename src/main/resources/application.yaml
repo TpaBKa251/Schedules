@@ -84,6 +84,7 @@ otlp:
 rest:
   base-url:
     user-service: http://userservice:8080
+    notification-service: http://notificationservice:8080
 
 springdoc:
   swagger-ui:

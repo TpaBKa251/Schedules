@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,6 +41,10 @@ public class Responsible {
 
     @Column(name = "\"user\"")
     private UUID user;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 
     @Override
     public final boolean equals(Object o) {

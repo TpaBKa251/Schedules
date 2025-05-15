@@ -1,6 +1,7 @@
 package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,29 +87,33 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     public ResponsibleResponseDto editResponsible(
             UUID responsibleId,
             ResponsibleEditRequestDto responsibleEditRequestDto
     ) {
-        Responsible responsible = responsibleRepository.findByIdForUpdate(responsibleId).orElseThrow(
+        Responsible responsible = responsibleRepository.findByIdOptimistic(responsibleId).orElseThrow(
                 () -> new ServiceException.NotFound("Ответственный не найден")
         );
         ExecutionContext context = ExecutionContext.get();
-        if (responsibleEditRequestDto.user() == null
-                && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
-                && Roles.canBeAssignedToResourceType(context.getUserRoles(), responsible.getType())) {
-            responsible.setUser(context.getUserID());
-            return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
-        }
+        try {
+            if (responsibleEditRequestDto.user() == null
+                    && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
+                    && Roles.canBeAssignedToResourceType(context.getUserRoles(), responsible.getType())) {
+                responsible.setUser(context.getUserID());
+                return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+            }
 
-        List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleEditRequestDto.user());
-        if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
-                && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
-                && Roles.canBeAssignedToResourceType(userToAssignRoles, responsible.getType())) {
-            responsible.setUser(responsibleEditRequestDto.user());
-            return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+            List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleEditRequestDto.user());
+            if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
+                    && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
+                    && Roles.canBeAssignedToResourceType(userToAssignRoles, responsible.getType())) {
+                responsible.setUser(responsibleEditRequestDto.user());
+                return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+            }
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict("Кто-то уже отредактировал ответственного");
         }
 
         throw new ServiceException.Forbidden("Вы не можете редактировать ответственного на день");

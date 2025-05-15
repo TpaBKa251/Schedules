@@ -17,3 +17,4 @@ otlp:
 rest:
   base-url:
     user-service: http://localhost:8081
+    notification-service: http://localhost:8085

@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,6 +43,10 @@ public class Timeslot {
 
     @Column(name = "booking_count", nullable = false)
     private Integer bookingCount;
+
+    @Column(name = "version", nullable = false)
+    @Version
+    private Long version;
 
     @Override
     public final boolean equals(Object o) {

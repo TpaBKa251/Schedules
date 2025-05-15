@@ -26,7 +26,7 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, UUID> 
     Optional<UUID> findUserByTypeAndDate(@Param("type") EventType type, @Param("date") LocalDate date);
 
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT r FROM Responsible r WHERE r.id = :id")
-    Optional<Responsible> findByIdForUpdate(@Param("id") UUID id);
+    Optional<Responsible> findByIdOptimistic(@Param("id") UUID id);
 }

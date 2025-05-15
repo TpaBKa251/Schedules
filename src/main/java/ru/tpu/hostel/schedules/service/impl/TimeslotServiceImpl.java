@@ -24,7 +24,7 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     private final TimeslotRepository repository;
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
         Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now())
@@ -38,7 +38,7 @@ public class TimeslotServiceImpl implements TimeslotService {
         }
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Override
     public void cancelTimeSlot(UUID slotId) {
         Timeslot timeSlot = repository.findSlotForUpdate(slotId)

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.tpu.hostel.schedules.external.rest.notification.dto.NotificationRequestDto;
 
 @Component
-@FeignClient(name = "notifications-notificationservice", url = "http://notificationservice:8080")
+@FeignClient(name = "notifications-notificationservice", url = "${rest.base-url.notification-service}")
 public interface NotificationClient {
 
     @PostMapping("/notifications")
