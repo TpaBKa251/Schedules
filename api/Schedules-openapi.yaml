@@ -1,0 +1,408 @@
+openapi: "3.1.0"
+info:
+  title: "Schedules API"
+  description: "Schedules API"
+  version: "1.0.0"
+servers:
+  - url: "https://Schedules"
+paths:
+  /schedules/kitchen/swap:
+    patch:
+      summary: "PATCH schedules/kitchen/swap"
+      operationId: "swap"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SwapRequestDto"
+        required: true
+      responses:
+        "204":
+          description: "No Content"
+  /schedules/kitchen/mark/{kitchenScheduleId}:
+    patch:
+      summary: "PATCH schedules/kitchen/mark/{kitchenScheduleId}"
+      operationId: "markScheduleCompleted"
+      parameters:
+        - name: "kitchenScheduleId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "204":
+          description: "No Content"
+  /schedules/kitchen/{kitchenScheduleId}:
+    delete:
+      summary: "DELETE schedules/kitchen/{kitchenScheduleId}"
+      operationId: "deleteKitchenSchedule"
+      parameters:
+        - name: "kitchenScheduleId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "204":
+          description: "No Content"
+  /schedules/kitchen/get/on/floor:
+    get:
+      summary: "GET schedules/kitchen/get/on/floor"
+      operationId: "getKitchenSchedule"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/KitchenScheduleShortResponseDto"
+  /schedules/kitchen/get/on/room/{userId}:
+    get:
+      summary: "GET schedules/kitchen/get/on/room/{userId}"
+      operationId: "getActiveEvent"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ActiveEventResponseDto"
+  /schedules/kitchen/get/on/floor/date/{date}:
+    get:
+      summary: "GET schedules/kitchen/get/on/floor/date/{date}"
+      operationId: "getKitchenSchedule"
+      parameters:
+        - name: "date"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "date"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/KitchenScheduleResponseDto"
+  /schedules/kitchen:
+    get:
+      summary: "GET schedules/kitchen"
+      operationId: "getKitchenScheduleById"
+      parameters:
+        - name: "kitchenScheduleId"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/KitchenScheduleResponseDto"
+  /schedules/available/timeslot/{date}/{bookingType}:
+    get:
+      summary: "GET schedules/available/timeslot/{date}/{bookingType}"
+      operationId: "getAvailableTimeBooking"
+      parameters:
+        - name: "date"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "date"
+        - name: "bookingType"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "HALL"
+              - "INTERNET"
+              - "GYM"
+              - "KITCHEN"
+              - "SOOP"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TimeslotResponse"
+  /responsibles/{responsibleId}:
+    patch:
+      summary: "PATCH responsibles/{responsibleId}"
+      operationId: "editResponsible"
+      parameters:
+        - name: "responsibleId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResponsibleEditRequestDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponsibleResponseDto"
+  /responsibles:
+    post:
+      summary: "POST responsibles"
+      operationId: "setResponsible"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResponsibleSetRequestDto"
+        required: true
+      responses:
+        "201":
+          description: "Created"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponsibleResponseDto"
+  /responsibles/one:
+    get:
+      summary: "GET responsibles/one"
+      operationId: "getResponsible"
+      parameters:
+        - name: "date"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "date"
+        - name: "type"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "HALL"
+              - "INTERNET"
+              - "GYM"
+              - "KITCHEN"
+              - "SOOP"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserShortResponseDto"
+  /responsibles/many:
+    get:
+      summary: "GET responsibles/many"
+      operationId: "getAllResponsible"
+      parameters:
+        - name: "date"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "date"
+        - name: "type"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "HALL"
+              - "INTERNET"
+              - "GYM"
+              - "KITCHEN"
+              - "SOOP"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserNameWithIdResponse"
+components:
+  schemas:
+    SwapRequestDto:
+      type: "object"
+      properties:
+        dutyId1:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        dutyId2:
+          type: "string"
+          format: "uuid"
+          nullable: true
+    KitchenScheduleShortResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        date:
+          type: "string"
+          format: "date"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+        checked:
+          type: "boolean"
+          nullable: true
+    ActiveEventResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        startTime:
+          type: "string"
+          format: "date-time"
+          nullable: true
+        endTime:
+          type: "string"
+          format: "date-time"
+          nullable: true
+        status:
+          type: "string"
+          nullable: true
+        type:
+          type: "string"
+          nullable: true
+    UserShortResponseDto:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+    KitchenScheduleResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        date:
+          type: "string"
+          format: "date"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+        checked:
+          type: "boolean"
+          nullable: true
+        users:
+          type: "array"
+          nullable: true
+          items:
+            $ref: "#/components/schemas/UserShortResponseDto"
+    TimeslotResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        time:
+          type: "string"
+          nullable: true
+    ResponsibleEditRequestDto:
+      type: "object"
+      properties:
+        user:
+          type: "string"
+          format: "uuid"
+          nullable: true
+    ResponsibleResponseDto:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          format: "date"
+          nullable: true
+        type:
+          type: "string"
+          nullable: true
+          enum:
+            - "HALL"
+            - "INTERNET"
+            - "GYM"
+            - "KITCHEN"
+            - "SOOP"
+        user:
+          type: "string"
+          format: "uuid"
+          nullable: true
+    ResponsibleSetRequestDto:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          format: "date"
+          nullable: true
+        type:
+          type: "string"
+          nullable: true
+          enum:
+            - "HALL"
+            - "INTERNET"
+            - "GYM"
+            - "KITCHEN"
+            - "SOOP"
+        user:
+          type: "string"
+          format: "uuid"
+          nullable: true
+    UserNameWithIdResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
