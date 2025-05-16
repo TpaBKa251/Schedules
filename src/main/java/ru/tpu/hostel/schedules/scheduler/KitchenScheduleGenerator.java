@@ -42,13 +42,11 @@ public class KitchenScheduleGenerator {
 
             // Переносим все дежурства, включая пропущенное, на следующий день
             shiftFloorSchedules(floor, yesterday);
-
         }
     }
 
     private void shiftFloorSchedules(String floor, LocalDate fromDate) {
-        List<KitchenSchedule> schedulesToShift = kitchenSchedulesRepository
-                .findAllByFloorFromDate(floor, fromDate);
+        List<KitchenSchedule> schedulesToShift = kitchenSchedulesRepository.findAllByFloorFromDate(floor, fromDate);
 
         for (KitchenSchedule schedule : schedulesToShift) {
             schedule.setDate(schedule.getDate().plusDays(1));

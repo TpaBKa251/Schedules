@@ -28,13 +28,13 @@ public class TimeslotServiceImpl implements TimeslotService {
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
         Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now())
-                .orElseThrow(() -> new ServiceException.BadRequest("Слот заполнен или не найден"));
+                .orElseThrow(() -> new ServiceException.Conflict("Слот заполнен или не найден"));
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() + 1);
         try {
             return repository.save(timeSlot);
         } catch (ConstraintViolationException e) {
-            throw new ServiceException.BadRequest("Слот полностью заполнен");
+            throw new ServiceException.Conflict("Слот полностью заполнен");
         }
     }
 
@@ -42,13 +42,13 @@ public class TimeslotServiceImpl implements TimeslotService {
     @Override
     public void cancelTimeSlot(UUID slotId) {
         Timeslot timeSlot = repository.findSlotForUpdate(slotId)
-                .orElseThrow(() -> new ServiceException.BadRequest("Слот свободен или не найден"));
+                .orElseThrow(() -> new ServiceException.Conflict("Слот свободен или не найден"));
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() - 1);
         try {
             repository.save(timeSlot);
         } catch (ConstraintViolationException e) {
-            throw new ServiceException.BadRequest("Слот уже полностью свободен");
+            throw new ServiceException.Conflict("Слот уже полностью свободен");
         }
     }
 

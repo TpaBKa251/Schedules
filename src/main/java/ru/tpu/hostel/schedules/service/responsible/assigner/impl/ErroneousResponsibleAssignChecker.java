@@ -17,7 +17,7 @@ public class ErroneousResponsibleAssignChecker implements ResponsibleAssignCheck
 
     @Override
     public void canAssignResponsible(ResponsibleSetRequestDto responsibleSetRequestDto) {
-        throw new ServiceException.NotAcceptable(
+        throw new ServiceException.BadRequest(
                 "Вы не можете назначить ответственного на день для типа "
                         + responsibleSetRequestDto.type().getEventTypeName()
         );

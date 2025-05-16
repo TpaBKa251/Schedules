@@ -113,7 +113,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                 return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
             }
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ServiceException.Conflict("Кто-то уже отредактировал ответственного");
+            throw new ServiceException.Conflict("Кто-то уже изменил ответственного. Обновите данные и повторите попытку");
         }
 
         throw new ServiceException.Forbidden("Вы не можете редактировать ответственного на день");

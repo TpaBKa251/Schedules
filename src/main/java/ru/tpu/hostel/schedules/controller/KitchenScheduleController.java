@@ -2,7 +2,7 @@ package ru.tpu.hostel.schedules.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
@@ -53,22 +54,20 @@ public class KitchenScheduleController {
     }
 
     @PatchMapping("/kitchen/swap")
-    public ResponseEntity<?> swap(@Valid @RequestBody SwapRequestDto swapRequestDto) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void swap(@Valid @RequestBody SwapRequestDto swapRequestDto) {
         kitchenSchedulesService.swap(swapRequestDto);
-        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/kitchen/mark/{kitchenScheduleId}")
-    public ResponseEntity<?> markScheduleCompleted(
-            @PathVariable UUID kitchenScheduleId
-    ) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void markScheduleCompleted(@PathVariable UUID kitchenScheduleId) {
         kitchenSchedulesService.markSchedule(kitchenScheduleId);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/kitchen/{kitchenScheduleId}")
-    public ResponseEntity<?> deleteKitchenSchedule(@PathVariable UUID kitchenScheduleId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteKitchenSchedule(@PathVariable UUID kitchenScheduleId) {
         kitchenSchedulesService.deleteById(kitchenScheduleId);
-        return ResponseEntity.ok().build();
     }
 }

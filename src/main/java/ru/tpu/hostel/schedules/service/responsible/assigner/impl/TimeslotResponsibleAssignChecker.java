@@ -25,7 +25,7 @@ public class TimeslotResponsibleAssignChecker implements ResponsibleAssignChecke
     @Override
     public void canAssignResponsible(ResponsibleSetRequestDto responsibleSetRequestDto) {
         if (!timeSlotRepository.existsByTypeAndDate(responsibleSetRequestDto.type(), responsibleSetRequestDto.date())) {
-            throw new ServiceException.NotAcceptable(
+            throw new ServiceException.Conflict(
                     "Невозможно назначить ответственного по %s на %s, так как нет слотов на день".formatted(
                             responsibleSetRequestDto.type().getEventTypeName(),
                             responsibleSetRequestDto.date()

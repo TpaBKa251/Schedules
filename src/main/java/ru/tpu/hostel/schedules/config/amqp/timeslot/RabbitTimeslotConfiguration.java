@@ -27,7 +27,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.tpu.hostel.internal.config.amqp.AmqpMessagingConfig;
-import ru.tpu.hostel.internal.config.amqp.tracing.AmqpMessageReceiveInterceptor;
+import ru.tpu.hostel.internal.config.amqp.interceptor.AmqpMessageReceiveInterceptor;
 import ru.tpu.hostel.internal.external.amqp.Microservice;
 import ru.tpu.hostel.schedules.external.amqp.timeslot.TimeslotMessageType;
 

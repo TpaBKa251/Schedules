@@ -49,14 +49,16 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
 
     @Query(value = """
             SELECT * FROM schedules.kitchen k
-            WHERE SUBSTRING(k.room_number from 1 for 1)
-            LIKE :floor
+            WHERE SUBSTRING(k.room_number from 1 for 1) LIKE :floor
+            AND k.date >= :date
             ORDER BY k.date""",
             nativeQuery = true)
-    List<KitchenSchedule> findAllOnFloor(
+    List<KitchenSchedule> findAllOnFloorAfterDate(
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
-            String floor
+            String floor,
+            @Param("date")
+            LocalDate date
     );
 
     @Query(value = """
