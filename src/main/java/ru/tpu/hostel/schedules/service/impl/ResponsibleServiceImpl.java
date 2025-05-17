@@ -1,6 +1,7 @@
 package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -34,6 +35,9 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             = "Кто-то уже изменил ответственного. Обновите данные и повторите попытку";
 
     private static final String RESPONSIBLE_NOT_FOUND_EXCEPTION_MESSAGE = "Ответственный не найден";
+
+    private static final String CONFLICT_USER_ALREADY_SIGNED_EXCEPTION_MESSAGE
+            = "Пользователь уже записан ответственным";
 
     private final ResponsibleRepository responsibleRepository;
 
@@ -89,7 +93,12 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         responsible.setDate(date);
         responsible.setType(eventType);
         responsible.setUser(userId);
-        return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+        try {
+            return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
+        } catch (ConstraintViolationException e) {
+            throw new ServiceException.Conflict(CONFLICT_USER_ALREADY_SIGNED_EXCEPTION_MESSAGE);
+        }
+
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -119,6 +128,8 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             }
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        } catch (ConstraintViolationException e) {
+            throw new ServiceException.Conflict(CONFLICT_USER_ALREADY_SIGNED_EXCEPTION_MESSAGE);
         }
 
         throw new ServiceException.Forbidden("Вы не можете редактировать ответственного на день");
