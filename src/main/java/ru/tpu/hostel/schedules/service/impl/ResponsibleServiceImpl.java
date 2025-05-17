@@ -30,6 +30,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ResponsibleServiceImpl implements ResponsibleService {
 
+    private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
+            = "Кто-то уже изменил ответственного. Обновите данные и повторите попытку";
+
+    private static final String RESPONSIBLE_NOT_FOUND_EXCEPTION_MESSAGE = "Ответственный не найден";
+
     private final ResponsibleRepository responsibleRepository;
 
     private final UserServiceClient userServiceClient;
@@ -94,7 +99,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
             ResponsibleEditRequestDto responsibleEditRequestDto
     ) {
         Responsible responsible = responsibleRepository.findByIdOptimistic(responsibleId).orElseThrow(
-                () -> new ServiceException.NotFound("Ответственный не найден")
+                () -> new ServiceException.NotFound(RESPONSIBLE_NOT_FOUND_EXCEPTION_MESSAGE)
         );
         ExecutionContext context = ExecutionContext.get();
         try {
@@ -113,7 +118,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                 return responsibleMapper.mapToResponsibleResponseDto(responsibleRepository.save(responsible));
             }
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ServiceException.Conflict("Кто-то уже изменил ответственного. Обновите данные и повторите попытку");
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
         }
 
         throw new ServiceException.Forbidden("Вы не можете редактировать ответственного на день");
@@ -140,6 +145,25 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                         userServiceClient.getUserByIdShort(r.getUser())
                 ))
                 .toList();
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Override
+    public void deleteResponsible(UUID responsibleId) {
+        Responsible responsible = responsibleRepository.findByIdOptimistic(responsibleId).orElseThrow(
+                () -> new ServiceException.NotFound(RESPONSIBLE_NOT_FOUND_EXCEPTION_MESSAGE)
+        );
+        ExecutionContext context = ExecutionContext.get();
+
+        try {
+            if (Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())) {
+                responsibleRepository.delete(responsible);
+            } else {
+                throw new ServiceException.Forbidden("Вы не можете удалить ответственного на день");
+            }
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        }
     }
 
 }

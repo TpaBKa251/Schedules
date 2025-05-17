@@ -21,4 +21,6 @@ public interface ResponsibleService {
 
     List<UserNameWithIdResponse> getAllResponsibleByTypeAndDate(LocalDate date, EventType type);
 
+    void deleteResponsible(UUID responsibleId);
+
 }

@@ -188,6 +188,19 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ResponsibleResponseDto"
+    delete:
+      summary: "DELETE responsibles"
+      operationId: "deleteResponsible"
+      parameters:
+        - name: "responsibleId"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "204":
+          description: "No Content"
   /responsibles/one:
     get:
       summary: "GET responsibles/one"
