@@ -11,17 +11,25 @@ import java.util.UUID;
 
 public interface KitchenSchedulesService {
 
-    List<KitchenScheduleShortResponseDto> getKitchenSchedule();
+    List<KitchenScheduleShortResponseDto> getSchedule(String floorFromRequest);
 
-    List<ActiveEventResponseDto> getActiveEvent(UUID userId);
+    List<KitchenScheduleShortResponseDto> getSchedule();
 
-    KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date);
+    List<ActiveEventResponseDto> getActiveDuties(String roomNumber);
 
-    KitchenScheduleResponseDto getKitchenScheduleById(UUID id);
+    List<ActiveEventResponseDto> getActiveDuties(UUID userId);
 
-    void swap(SwapRequestDto swapRequestDto);
+    /**
+     * @deprecated заменен на {@link #getDutyById(UUID)}
+     */
+    @Deprecated(forRemoval = true)
+    KitchenScheduleResponseDto getDutyOnDate(LocalDate date, String floorFromRequest);
 
-    void markSchedule(UUID kitchenScheduleId);
+    KitchenScheduleResponseDto getDutyById(UUID id);
 
-    void deleteById(UUID id);
+    void swapDuties(SwapRequestDto swapRequestDto);
+
+    void markDuty(UUID kitchenScheduleId);
+
+    void deleteDutyById(UUID id);
 }

@@ -40,7 +40,17 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             nativeQuery = true)
     Optional<Integer> findLastNumberOfScheduleByFloor(@Param("floor") @Min(2) @Max(5) int floor);
 
-    List<KitchenSchedule> findAllByRoomNumberAndDateLessThanEqual(String roomNumber, LocalDate date);
+    @Query("""
+            SELECT k FROM KitchenSchedule k
+                WHERE k.roomNumber = :roomNumber
+                    AND k.date >= :today
+                    AND k.date <= :maxDate
+            """)
+    List<KitchenSchedule> findAllActiveDuties(
+            @Param("roomNumber") String roomNumber,
+            @Param("maxDate") LocalDate maxDate,
+            @Param("today") LocalDate today
+    );
 
     List<KitchenSchedule> deleteAllByDateLessThan(LocalDate date);
 
@@ -61,6 +71,9 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LocalDate date
     );
 
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.date >= :date ORDER BY k.roomNumber, k.date")
+    List<KitchenSchedule> findAllAfterDate(@Param("date") LocalDate date);
+
     @Query(value = """
             SELECT k.room_number FROM schedules.kitchen k
             WHERE SUBSTRING(k.room_number from 1 for 1)
@@ -76,7 +89,7 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             and k.date = :date
             ORDER BY k.room_number""",
             nativeQuery = true)
-    Optional<KitchenSchedule> findByRoomNumberAndDate(
+    Optional<KitchenSchedule> findByFloorAndDate(
             @Param("floor")
             @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой")
             String floor,

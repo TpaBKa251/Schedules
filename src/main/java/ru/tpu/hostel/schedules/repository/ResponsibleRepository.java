@@ -29,4 +29,11 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, UUID> 
     @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT r FROM Responsible r WHERE r.id = :id")
     Optional<Responsible> findByIdOptimistic(@Param("id") UUID id);
+
+    @Query("SELECT r FROM Responsible r WHERE r.user = :user AND r.date >= :today AND r.date <= :maxDate")
+    List<Responsible> findAllActiveResponsible(
+            @Param("user") UUID user,
+            @Param("maxDate") LocalDate maxDate,
+            @Param("today") LocalDate today
+    );
 }

@@ -1,10 +1,9 @@
 package ru.tpu.hostel.schedules.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,52 +26,82 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+// TODO Добавить кэширование комнат или этажей юзеров
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
-    private static final String SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE
-            = "У вас нет прав редактировать расписание другого этажа";
+    private static final String FORBIDDEN_EXCEPTION_MESSAGE = "У вас нет прав редактировать расписание другого этажа";
 
     private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
             = "Кто-то уже изменил дежурство. Обновите данные и повторите попытку";
+
+    private static final String DUTY_NOT_FOUND_EXCEPTION_MESSAGE = "Дежурство не найдено";
+
+    private static final int WEEK = 7;
+
+    private static final int FLOOR_INDEX = 0;
 
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
     private final UserServiceClient userServiceClient;
 
     @Override
-    public List<KitchenScheduleShortResponseDto> getKitchenSchedule() {
-        UUID userId = ExecutionContext.get().getUserID();
-        String floor = String.valueOf(userServiceClient.getRoomNumber(userId).charAt(0));
+    public List<KitchenScheduleShortResponseDto> getSchedule(String floorFromRequest) {
         LocalDate date = getDateForCheck();
-
-        return kitchenSchedulesRepository.findAllOnFloorAfterDate(floor, date).stream()
+        return kitchenSchedulesRepository.findAllOnFloorAfterDate(floorFromRequest, date).stream()
                 .map(KitchenScheduleMapper::mapToKitchenScheduleShortResponseDto)
                 .toList();
     }
 
     @Override
-    public List<ActiveEventResponseDto> getActiveEvent(UUID userId) {
-        String roomNumber = userServiceClient.getRoomNumber(userId);
+    public List<KitchenScheduleShortResponseDto> getSchedule() {
+        UUID userId = ExecutionContext.get().getUserID();
+        LocalDate date = getDateForCheck();
+        try {
+            String userFloor = String.valueOf(userServiceClient.getRoomNumber(userId).charAt(FLOOR_INDEX));
+            return getSchedule(userFloor);
+        } catch (FeignException e) {
+            if (e.status() >= 400 && e.status() < 500) {
+                throw e;
+            }
+            log.warn("User-service не ответил, отправляю расписание на все этажи");
+            return kitchenSchedulesRepository.findAllAfterDate(date).stream()
+                    .map(KitchenScheduleMapper::mapToKitchenScheduleShortResponseDto)
+                    .toList();
+        }
+    }
 
+    @Override
+    public List<ActiveEventResponseDto> getActiveDuties(String roomNumber) {
+        LocalDate today = TimeUtil.now().toLocalDate();
         return kitchenSchedulesRepository
-                .findAllByRoomNumberAndDateLessThanEqual(roomNumber, TimeUtil.now().toLocalDate().plusDays(7))
+                .findAllActiveDuties(roomNumber, today.plusDays(WEEK), today)
                 .stream()
                 .map(KitchenScheduleMapper::mapToActiveEventDto)
                 .toList();
     }
 
     @Override
-    public KitchenScheduleResponseDto getKitchenScheduleOnDate(LocalDate date) {
-        UUID userId = ExecutionContext.get().getUserID();
+    public List<ActiveEventResponseDto> getActiveDuties(UUID userId) {
         String roomNumber = userServiceClient.getRoomNumber(userId);
-        String floor = String.valueOf(roomNumber.charAt(0));
+        return getActiveDuties(roomNumber);
+    }
 
-        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByRoomNumberAndDate(floor, date)
-                .orElseThrow(() -> new ServiceException.NotFound("Расписания на указанную дату не найдено"));
+    @Override
+    public KitchenScheduleResponseDto getDutyOnDate(LocalDate date, String floorFromRequest) {
+        UUID userId = ExecutionContext.get().getUserID();
+        String floor = floorFromRequest == null || floorFromRequest.isEmpty()
+                ? String.valueOf(userServiceClient.getRoomNumber(userId).charAt(FLOOR_INDEX))
+                : floorFromRequest;
 
-        List<UserResponseDto> usersInRoom = userServiceClient.getAllInRooms(new String[]{kitchenSchedule.getRoomNumber()});
+        KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByFloorAndDate(floor, date)
+                .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
+
+        List<UserResponseDto> usersInRoom = userServiceClient.getAllInRooms(
+                new String[]{kitchenSchedule.getRoomNumber()}
+        );
 
         return KitchenScheduleMapper.mapToKitchenScheduleResponseDto(
                 kitchenSchedule,
@@ -81,28 +110,31 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Override
-    public KitchenScheduleResponseDto getKitchenScheduleById(UUID id) {
+    public KitchenScheduleResponseDto getDutyById(UUID id) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findById(id)
-                .orElseThrow(() -> new ServiceException.NotFound("Расписание не найдено"));
-        List<UserResponseDto> users = userServiceClient.getAllInRooms(new String[]{kitchenSchedule.getRoomNumber()});
+                .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
+        List<UserResponseDto> users = List.of();
+        try {
+            users = userServiceClient.getAllInRooms(new String[]{kitchenSchedule.getRoomNumber()});
+        } catch (FeignException e) {
+            if (e.status() >= 400 && e.status() < 500) {
+                throw e;
+            }
+            log.warn("User-service не ответил, отправляю дежурство без юзеров");
+        }
 
         return KitchenScheduleMapper.mapToKitchenScheduleResponseDto(kitchenSchedule, users);
     }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverSwap"
-    )
-    public void swap(SwapRequestDto swapRequestDto) {
+    public void swapDuties(SwapRequestDto swapRequestDto) {
         List<KitchenSchedule> schedulesForSwap = kitchenSchedulesRepository.findDutiesForSwap(
                 swapRequestDto.dutyId1(),
                 swapRequestDto.dutyId2()
         );
         if (schedulesForSwap.size() != 2) {
-            throw new ServiceException.NotFound("Дежурства для перестановки не найдены");
+            throw new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE);
         }
 
         KitchenSchedule kitchenScheduleA = schedulesForSwap.get(0);
@@ -114,7 +146,12 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         kitchenScheduleA.setRoomNumber(kitchenScheduleB.getRoomNumber());
         kitchenScheduleB.setRoomNumber(tempRoom);
 
-        kitchenSchedulesRepository.saveAll(List.of(kitchenScheduleA, kitchenScheduleB));
+        try {
+            kitchenSchedulesRepository.saveAll(List.of(kitchenScheduleA, kitchenScheduleB));
+            kitchenSchedulesRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        }
     }
 
     private void validateSwap(KitchenSchedule kitchenScheduleA, KitchenSchedule kitchenScheduleB) {
@@ -129,29 +166,19 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 //        }
 
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
-        char responsibleFloor = roomNumber.charAt(0);
-        char roomAFloor = kitchenScheduleA.getRoomNumber().charAt(0);
-        char roomBFloor = kitchenScheduleB.getRoomNumber().charAt(0);
+        char responsibleFloor = roomNumber.charAt(FLOOR_INDEX);
+        char roomAFloor = kitchenScheduleA.getRoomNumber().charAt(FLOOR_INDEX);
+        char roomBFloor = kitchenScheduleB.getRoomNumber().charAt(FLOOR_INDEX);
         if (responsibleFloor != roomAFloor || responsibleFloor != roomBFloor) {
-            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
+            throw new ServiceException.Forbidden(FORBIDDEN_EXCEPTION_MESSAGE);
         }
-    }
-
-    @Recover
-    public void recoverSwap(ObjectOptimisticLockingFailureException e, SwapRequestDto swapRequestDto) {
-        throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
     }
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverMarkScheduleCompleted"
-    )
-    public void markSchedule(UUID kitchenScheduleId) {
+    public void markDuty(UUID kitchenScheduleId) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(kitchenScheduleId)
-                .orElseThrow(() -> new ServiceException.NotFound("Дежурство не найдено"));
+                .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
 
         LocalDate date = getDateForCheck();
         if (kitchenSchedule.getDate().isBefore(date)) {
@@ -159,31 +186,26 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         }
 
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
-        char responsibleFloor = roomNumber.charAt(0);
-        char roomFloor = kitchenSchedule.getRoomNumber().charAt(0);
+        char responsibleFloor = roomNumber.charAt(FLOOR_INDEX);
+        char roomFloor = kitchenSchedule.getRoomNumber().charAt(FLOOR_INDEX);
         if (responsibleFloor != roomFloor) {
-            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
+            throw new ServiceException.Forbidden(FORBIDDEN_EXCEPTION_MESSAGE);
         }
 
         kitchenSchedule.setChecked(!kitchenSchedule.getChecked());
-        kitchenSchedulesRepository.save(kitchenSchedule);
-    }
-
-    @Recover
-    public void recoverMarkScheduleCompleted(ObjectOptimisticLockingFailureException e, UUID kitchenScheduleId) {
-        throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        try {
+            kitchenSchedulesRepository.save(kitchenSchedule);
+            kitchenSchedulesRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        }
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Override
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverDeleteById"
-    )
-    public void deleteById(UUID id) {
+    public void deleteDutyById(UUID id) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(id)
-                .orElseThrow(() -> new ServiceException.NotFound("Дежурство не найдено"));
+                .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
 
         LocalDate date = TimeUtil.now().toLocalDate();
         if (kitchenSchedule.getDate().isBefore(date)) {
@@ -191,13 +213,18 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         }
 
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
-        String floor = String.valueOf(roomNumber.charAt(0));
-        if (roomNumber.charAt(0) != kitchenSchedule.getRoomNumber().charAt(0)) {
-            throw new ServiceException.Forbidden(SCHEDULE_FORBIDDEN_EXCEPTION_MESSAGE);
+        String floor = String.valueOf(roomNumber.charAt(FLOOR_INDEX));
+        if (roomNumber.charAt(FLOOR_INDEX) != kitchenSchedule.getRoomNumber().charAt(FLOOR_INDEX)) {
+            throw new ServiceException.Forbidden(FORBIDDEN_EXCEPTION_MESSAGE);
         }
 
         LocalDate dateForShift = kitchenSchedule.getDate();
-        kitchenSchedulesRepository.delete(kitchenSchedule);
+        try {
+            kitchenSchedulesRepository.delete(kitchenSchedule);
+            kitchenSchedulesRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        }
 
         List<KitchenSchedule> schedulesToShift = kitchenSchedulesRepository.findAllByFloorFromDate(floor, dateForShift);
 
@@ -207,14 +234,9 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         kitchenSchedulesRepository.saveAll(schedulesToShift);
     }
 
-    @Recover
-    public void recoverDeleteById(ObjectOptimisticLockingFailureException e, UUID id) {
-        throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
-    }
-
     private LocalDate getDateForCheck() {
         LocalTime timeNow = TimeUtil.now().toLocalTime();
-        return timeNow.isAfter(LocalTime.of(12, 0, 0))
+        return timeNow.isAfter(LocalTime.NOON)
                 ? TimeUtil.now().toLocalDate()
                 : TimeUtil.now().toLocalDate().minusDays(1);
     }

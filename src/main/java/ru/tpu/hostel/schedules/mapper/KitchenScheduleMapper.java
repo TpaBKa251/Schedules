@@ -1,6 +1,7 @@
 package ru.tpu.hostel.schedules.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
@@ -44,7 +45,7 @@ public class KitchenScheduleMapper {
                 kitchenSchedule.getId(),
                 kitchenSchedule.getDate().atTime(0, 0),
                 kitchenSchedule.getDate().atTime(23, 59),
-                "BOOKED",
+                TimeUtil.now().toLocalDate().equals(kitchenSchedule.getDate()) ? "IN_PROGRESS" : "BOOKED",
                 "Дежурство на кухне"
         );
     }

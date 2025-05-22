@@ -31,7 +31,12 @@ spring:
           batch_size: 50
           order_inserts: true
           order_updates: true
+          fetch_size: 100
         generate_statistics: false
+        default_batch_fetch_size: 10
+        connection:
+          autocommit: false
+    open-in-view: false
 
   datasource:
     url: jdbc:postgresql://hostelDB:5432/hostelService

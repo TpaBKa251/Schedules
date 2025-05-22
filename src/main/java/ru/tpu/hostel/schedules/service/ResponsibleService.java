@@ -2,6 +2,7 @@ package ru.tpu.hostel.schedules.service;
 
 import ru.tpu.hostel.schedules.dto.request.ResponsibleEditRequestDto;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleSetRequestDto;
+import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.ResponsibleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.UserNameWithIdResponse;
 import ru.tpu.hostel.schedules.dto.response.UserShortResponseDto;
@@ -20,6 +21,8 @@ public interface ResponsibleService {
     UserShortResponseDto getResponsibleByTypeAndDate(LocalDate date, EventType type);
 
     List<UserNameWithIdResponse> getAllResponsibleByTypeAndDate(LocalDate date, EventType type);
+
+    List<ActiveEventResponseDto> getActiveResponsible();
 
     void deleteResponsible(UUID responsibleId);
 

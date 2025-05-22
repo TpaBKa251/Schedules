@@ -146,7 +146,7 @@ public class RabbitTimeslotConfiguration {
     }
 
     @Bean
-    public AmqpMessagingConfig bookAmqpMessagingConfig(
+    public AmqpMessagingConfig bookReplyAmqpMessagingConfig(
             @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
             @Qualifier(TIMESLOT_MESSAGE_CONVERTER) MessageConverter messageConverter,
             RabbitBookTimeslotQueueingProperties properties

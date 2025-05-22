@@ -33,4 +33,7 @@ public interface UserServiceClient {
 
     @GetMapping("/users/get/by/id/short/{id}")
     UserNameWithIdResponse getUserByIdShort(@PathVariable UUID id);
+
+    @GetMapping("/get/all/by/ids/short")
+    List<UserNameWithIdResponse> getAllUsersWithIdsShort(@RequestParam UUID[] ids);
 }

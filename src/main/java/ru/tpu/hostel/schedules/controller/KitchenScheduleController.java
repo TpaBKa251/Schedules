@@ -30,44 +30,56 @@ public class KitchenScheduleController {
     private final KitchenSchedulesService kitchenSchedulesService;
 
     @GetMapping("/kitchen/get/on/floor")
-    public List<KitchenScheduleShortResponseDto> getKitchenSchedule() {
-        return kitchenSchedulesService.getKitchenSchedule();
+    public List<KitchenScheduleShortResponseDto> getSchedule(
+            @RequestParam(name = "floor", required = false) String floor
+    ) {
+        if (floor == null || floor.isEmpty()) {
+            return kitchenSchedulesService.getSchedule();
+        }
+        return kitchenSchedulesService.getSchedule(floor);
     }
 
-    @GetMapping("/kitchen/get/on/room/{userId}")
-    public List<ActiveEventResponseDto> getActiveEvent(@PathVariable("userId") UUID userId) {
-        return kitchenSchedulesService.getActiveEvent(userId);
+    @GetMapping("/kitchen/get/on/room/{identifier}")
+    public List<ActiveEventResponseDto> getActiveDuties(@PathVariable("identifier") String identifier) {
+        UUID userId;
+        try {
+            userId = UUID.fromString(identifier);
+        } catch (IllegalArgumentException e) {
+            return kitchenSchedulesService.getActiveDuties(identifier);
+        }
+        return kitchenSchedulesService.getActiveDuties(userId);
     }
 
     @GetMapping("/kitchen/get/on/floor/date/{date}")
-    public KitchenScheduleResponseDto getKitchenSchedule(
-            @PathVariable("date") LocalDate date
+    public KitchenScheduleResponseDto getDutyOnDate(
+            @PathVariable("date") LocalDate date,
+            @RequestParam(name = "floor", required = false) String floor
     ) {
-        return kitchenSchedulesService.getKitchenScheduleOnDate(date);
+        return kitchenSchedulesService.getDutyOnDate(date, floor);
     }
 
     @GetMapping("/kitchen")
-    public KitchenScheduleResponseDto getKitchenScheduleById(
+    public KitchenScheduleResponseDto getDutyById(
             @RequestParam("kitchenScheduleId") UUID kitchenScheduleId
     ) {
-        return kitchenSchedulesService.getKitchenScheduleById(kitchenScheduleId);
+        return kitchenSchedulesService.getDutyById(kitchenScheduleId);
     }
 
     @PatchMapping("/kitchen/swap")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void swap(@Valid @RequestBody SwapRequestDto swapRequestDto) {
-        kitchenSchedulesService.swap(swapRequestDto);
+    public void swapDuties(@Valid @RequestBody SwapRequestDto swapRequestDto) {
+        kitchenSchedulesService.swapDuties(swapRequestDto);
     }
 
     @PatchMapping("/kitchen/mark/{kitchenScheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void markScheduleCompleted(@PathVariable UUID kitchenScheduleId) {
-        kitchenSchedulesService.markSchedule(kitchenScheduleId);
+    public void markDuty(@PathVariable UUID kitchenScheduleId) {
+        kitchenSchedulesService.markDuty(kitchenScheduleId);
     }
 
     @DeleteMapping("/kitchen/{kitchenScheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteKitchenSchedule(@PathVariable UUID kitchenScheduleId) {
-        kitchenSchedulesService.deleteById(kitchenScheduleId);
+    public void deleteDuty(@PathVariable UUID kitchenScheduleId) {
+        kitchenSchedulesService.deleteDutyById(kitchenScheduleId);
     }
 }

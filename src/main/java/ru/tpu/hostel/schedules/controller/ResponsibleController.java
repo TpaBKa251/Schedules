@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleEditRequestDto;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleSetRequestDto;
+import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.ResponsibleResponseDto;
 import ru.tpu.hostel.schedules.dto.response.UserNameWithIdResponse;
 import ru.tpu.hostel.schedules.dto.response.UserShortResponseDto;
@@ -62,6 +63,11 @@ public class ResponsibleController {
             @RequestParam(name = "type") EventType type
     ) {
         return responsibleService.getAllResponsibleByTypeAndDate(date, type);
+    }
+
+    @GetMapping("/active-event")
+    public List<ActiveEventResponseDto> getActiveResponsible() {
+        return responsibleService.getActiveResponsible();
     }
 
     @DeleteMapping

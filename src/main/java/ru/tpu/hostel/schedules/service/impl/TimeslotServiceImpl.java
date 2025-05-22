@@ -1,11 +1,12 @@
 package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
+import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.dto.response.TimeslotResponse;
 import ru.tpu.hostel.schedules.entity.EventType;
@@ -22,33 +23,47 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TimeslotServiceImpl implements TimeslotService {
 
+    private static final String SLOT_UNAVAILABLE_EXCEPTION_MESSAGE = "Слот полностью заполнен";
+
+    private static final String SLOT_EMPTY_EXCEPTION_MESSAGE = "Слот уже полностью свободен";
+
+    private static final String ADD_SLOT_NOT_FOUND_EXCEPTION_MESSAGE = " или не найден";
+
+    private static final String BAD_REQUEST_FOR_AVAILABLE_SLOTS_EXCEPTION_MESSAGE
+            = "Вы можете просматривать и бронировать слоты только на неделю вперед";
+
     private final TimeslotRepository repository;
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
-        Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now())
-                .orElseThrow(() -> new ServiceException.Conflict("Слот заполнен или не найден"));
+        Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now()).orElseThrow(() ->
+                new ServiceException.Conflict(SLOT_UNAVAILABLE_EXCEPTION_MESSAGE + ADD_SLOT_NOT_FOUND_EXCEPTION_MESSAGE)
+        );
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() + 1);
         try {
-            return repository.save(timeSlot);
-        } catch (ConstraintViolationException e) {
-            throw new ServiceException.Conflict("Слот полностью заполнен");
+            repository.save(timeSlot);
+            repository.flush();
+            return timeSlot;
+        } catch (DataIntegrityViolationException e) {
+            throw new ServiceException.Conflict(SLOT_UNAVAILABLE_EXCEPTION_MESSAGE);
         }
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
     public void cancelTimeSlot(UUID slotId) {
-        Timeslot timeSlot = repository.findSlotForUpdate(slotId)
-                .orElseThrow(() -> new ServiceException.Conflict("Слот свободен или не найден"));
+        Timeslot timeSlot = repository.findSlotForUpdate(slotId).orElseThrow(()
+                -> new ServiceException.Conflict(SLOT_EMPTY_EXCEPTION_MESSAGE + ADD_SLOT_NOT_FOUND_EXCEPTION_MESSAGE)
+        );
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() - 1);
         try {
             repository.save(timeSlot);
-        } catch (ConstraintViolationException e) {
-            throw new ServiceException.Conflict("Слот уже полностью свободен");
+            repository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new ServiceException.Conflict(SLOT_EMPTY_EXCEPTION_MESSAGE);
         }
     }
 
@@ -56,8 +71,10 @@ public class TimeslotServiceImpl implements TimeslotService {
     public List<TimeslotResponse> getAvailableTimeBooking(LocalDate date, EventType bookingType) {
         if (TimeUtil.now().toLocalDate().plusDays(7).isBefore(date)
                 || date.isBefore(TimeUtil.now().toLocalDate())) {
-            throw new ServiceException.BadRequest("Вы можете просматривать и бронировать слоты только на неделю вперед");
+            throw new ServiceException.BadRequest(BAD_REQUEST_FOR_AVAILABLE_SLOTS_EXCEPTION_MESSAGE);
         }
+
+        UUID userId = ExecutionContext.get().getUserID();
 
         return repository.findAllAvailableTimeslotsOnDay(bookingType, date, TimeUtil.now()).stream()
                 .map(TimeslotMapper::mapTimeSlotToTimeSlotResponse)
