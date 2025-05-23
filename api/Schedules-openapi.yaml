@@ -9,7 +9,7 @@ paths:
   /schedules/kitchen/swap:
     patch:
       summary: "PATCH schedules/kitchen/swap"
-      operationId: "swap"
+      operationId: "swapDuties"
       requestBody:
         content:
           application/json:
@@ -22,7 +22,7 @@ paths:
   /schedules/kitchen/mark/{kitchenScheduleId}:
     patch:
       summary: "PATCH schedules/kitchen/mark/{kitchenScheduleId}"
-      operationId: "markScheduleCompleted"
+      operationId: "markDuty"
       parameters:
         - name: "kitchenScheduleId"
           in: "path"
@@ -36,7 +36,7 @@ paths:
   /schedules/kitchen/{kitchenScheduleId}:
     delete:
       summary: "DELETE schedules/kitchen/{kitchenScheduleId}"
-      operationId: "deleteKitchenSchedule"
+      operationId: "deleteDuty"
       parameters:
         - name: "kitchenScheduleId"
           in: "path"
@@ -50,7 +50,13 @@ paths:
   /schedules/kitchen/get/on/floor:
     get:
       summary: "GET schedules/kitchen/get/on/floor"
-      operationId: "getKitchenSchedule"
+      operationId: "getSchedule"
+      parameters:
+        - name: "floor"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"
@@ -60,17 +66,16 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/KitchenScheduleShortResponseDto"
-  /schedules/kitchen/get/on/room/{userId}:
+  /schedules/kitchen/get/on/room/{identifier}:
     get:
-      summary: "GET schedules/kitchen/get/on/room/{userId}"
-      operationId: "getActiveEvent"
+      summary: "GET schedules/kitchen/get/on/room/{identifier}"
+      operationId: "getActiveDuties"
       parameters:
-        - name: "userId"
+        - name: "identifier"
           in: "path"
           required: true
           schema:
             type: "string"
-            format: "uuid"
       responses:
         "200":
           description: "OK"
@@ -83,7 +88,7 @@ paths:
   /schedules/kitchen/get/on/floor/date/{date}:
     get:
       summary: "GET schedules/kitchen/get/on/floor/date/{date}"
-      operationId: "getKitchenSchedule"
+      operationId: "getDutyOnDate"
       parameters:
         - name: "date"
           in: "path"
@@ -91,6 +96,11 @@ paths:
           schema:
             type: "string"
             format: "date"
+        - name: "floor"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"
@@ -101,7 +111,7 @@ paths:
   /schedules/kitchen:
     get:
       summary: "GET schedules/kitchen"
-      operationId: "getKitchenScheduleById"
+      operationId: "getDutyById"
       parameters:
         - name: "kitchenScheduleId"
           in: "query"
@@ -261,6 +271,19 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/UserNameWithIdResponse"
+  /responsibles/active-event:
+    get:
+      summary: "GET responsibles/active-event"
+      operationId: "getActiveResponsible"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ActiveEventResponseDto"
 components:
   schemas:
     SwapRequestDto:
