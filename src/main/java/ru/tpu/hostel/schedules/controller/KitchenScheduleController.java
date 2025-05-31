@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
-import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
 import ru.tpu.hostel.schedules.service.KitchenSchedulesService;
 
 import java.time.LocalDate;
@@ -30,7 +29,7 @@ public class KitchenScheduleController {
     private final KitchenSchedulesService kitchenSchedulesService;
 
     @GetMapping("/kitchen/get/on/floor")
-    public List<KitchenScheduleShortResponseDto> getSchedule(
+    public List<KitchenScheduleResponseDto> getSchedule(
             @RequestParam(name = "floor", required = false) String floor
     ) {
         if (floor == null || floor.isEmpty()) {

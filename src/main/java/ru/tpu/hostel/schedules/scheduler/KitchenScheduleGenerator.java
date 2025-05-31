@@ -34,7 +34,7 @@ public class KitchenScheduleGenerator {
         LocalDate yesterday = LocalDate.now().minusDays(1);
 
         List<KitchenSchedule> missedSchedules = kitchenSchedulesRepository
-                .findAllByDateAndChecked(yesterday, false);
+                .findAllByDateAndUnchecked(yesterday);
 
         for (KitchenSchedule missedSchedule : missedSchedules) {
             String roomNumber = missedSchedule.getRoomNumber();

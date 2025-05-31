@@ -91,6 +91,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         }
 
         if (responsibleSetRequestDto.user() != null) {
+            // TODO gRPC
             List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleSetRequestDto.user());
             if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
                     && Roles.hasPermissionToManageResourceType(context.getUserRoles(), type)
@@ -138,6 +139,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         }
 
         if (responsibleEditRequestDto.user() != null) {
+            // TODO gRPC
             List<Roles> userToAssignRoles = userServiceClient.getAllRolesByUserId(responsibleEditRequestDto.user());
             if (Roles.isRoleHigherThan(context.getUserRoles(), userToAssignRoles)
                     && Roles.hasPermissionToManageResourceType(context.getUserRoles(), responsible.getType())
@@ -167,6 +169,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
         return responsibleRepository.findByTypeAndDate(type, date)
                 .map(Responsible::getUser)
                 .map(userId -> {
+                    // TODO gRPC
                     UserNameWithIdResponse user = userServiceClient.getUserByIdShort(userId);
                     return new UserShortResponseDto(user.firstName(), user.lastName(), user.middleName());
                 })
@@ -187,6 +190,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                 .map(Responsible::getUser)
                 .toArray(UUID[]::new);
 
+        // TODO gRPC
         List<UserNameWithIdResponse> users = userServiceClient.getAllUsersWithIdsShort(userIdsForRequest);
         Map<UUID, UserNameWithIdResponse> userMap = users.stream()
                 .collect(Collectors.toMap(UserNameWithIdResponse::id, Function.identity()));

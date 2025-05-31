@@ -28,12 +28,12 @@ public interface UserServiceClient {
     @GetMapping("/users/get/all/in/rooms/with/id")
     List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers);
 
-    @GetMapping("roles/get/user/roles/all/{userId}")
+    @GetMapping("/roles/get/user/roles/all/{userId}")
     List<Roles> getAllRolesByUserId(@PathVariable UUID userId);
 
     @GetMapping("/users/get/by/id/short/{id}")
     UserNameWithIdResponse getUserByIdShort(@PathVariable UUID id);
 
-    @GetMapping("users/get/all/by/ids/short")
+    @GetMapping("/users/get/all/by/ids/short")
     List<UserNameWithIdResponse> getAllUsersWithIdsShort(@RequestParam UUID[] ids);
 }

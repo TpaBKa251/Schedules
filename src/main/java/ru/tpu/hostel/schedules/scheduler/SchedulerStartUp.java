@@ -17,11 +17,10 @@ public class SchedulerStartUp {
 
     @Bean
     public ApplicationRunner initializeTimeSlots() {
-        return args -> timeslotGenerator.generateSlotsForWeek();
-    }
-
-    @Bean
-    public ApplicationRunner checkSchedulesOnStart() {
-        return args -> kitchenScheduleGenerator.checkSchedules();
+        return args -> {
+            timeslotGenerator.generateSlotsForWeek();
+            kitchenScheduleGenerator.handleMissedSchedules();
+            kitchenScheduleGenerator.checkSchedules();
+        };
     }
 }

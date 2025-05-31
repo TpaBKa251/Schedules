@@ -45,6 +45,8 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
                 WHERE k.roomNumber = :roomNumber
                     AND k.date >= :today
                     AND k.date <= :maxDate
+                    AND k.checked = false
+                ORDER BY k.date
             """)
     List<KitchenSchedule> findAllActiveDuties(
             @Param("roomNumber") String roomNumber,
@@ -116,8 +118,8 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = :checked")
-    List<KitchenSchedule> findAllByDateAndChecked(@Param("date") LocalDate date, @Param("checked") boolean checked);
+    @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = false")
+    List<KitchenSchedule> findAllByDateAndUnchecked(@Param("date") LocalDate date);
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)

@@ -13,7 +13,6 @@ import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.dto.request.SwapRequestDto;
 import ru.tpu.hostel.schedules.dto.response.ActiveEventResponseDto;
 import ru.tpu.hostel.schedules.dto.response.KitchenScheduleResponseDto;
-import ru.tpu.hostel.schedules.dto.response.KitchenScheduleShortResponseDto;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 import ru.tpu.hostel.schedules.external.rest.user.UserServiceClient;
 import ru.tpu.hostel.schedules.external.rest.user.dto.UserResponseDto;
@@ -39,6 +38,9 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
     private static final String DUTY_NOT_FOUND_EXCEPTION_MESSAGE = "Дежурство не найдено";
 
+    private static final String CONFLICT_CANNOT_EDIT_SCHEDULE_EXCEPTION_MESSAGE
+            = "Уже нельзя редактировать это дежурство";
+
     private static final int WEEK = 7;
 
     private static final int FLOOR_INDEX = 0;
@@ -48,18 +50,19 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     private final UserServiceClient userServiceClient;
 
     @Override
-    public List<KitchenScheduleShortResponseDto> getSchedule(String floorFromRequest) {
+    public List<KitchenScheduleResponseDto> getSchedule(String floorFromRequest) {
         LocalDate date = getDateForCheck();
         return kitchenSchedulesRepository.findAllOnFloorAfterDate(floorFromRequest, date).stream()
-                .map(KitchenScheduleMapper::mapToKitchenScheduleShortResponseDto)
+                .map(this::getKitchenScheduleWithUsers)
                 .toList();
     }
 
     @Override
-    public List<KitchenScheduleShortResponseDto> getSchedule() {
+    public List<KitchenScheduleResponseDto> getSchedule() {
         UUID userId = ExecutionContext.get().getUserID();
         LocalDate date = getDateForCheck();
         try {
+            // TODO gRPC
             String userFloor = String.valueOf(userServiceClient.getRoomNumber(userId).charAt(FLOOR_INDEX));
             return getSchedule(userFloor);
         } catch (FeignException e) {
@@ -68,7 +71,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
             }
             log.warn("User-service не ответил, отправляю расписание на все этажи");
             return kitchenSchedulesRepository.findAllAfterDate(date).stream()
-                    .map(KitchenScheduleMapper::mapToKitchenScheduleShortResponseDto)
+                    .map(this::getKitchenScheduleWithUsers)
                     .toList();
         }
     }
@@ -85,6 +88,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
     @Override
     public List<ActiveEventResponseDto> getActiveDuties(UUID userId) {
+        // TODO gRPC
         String roomNumber = userServiceClient.getRoomNumber(userId);
         return getActiveDuties(roomNumber);
     }
@@ -93,12 +97,14 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     public KitchenScheduleResponseDto getDutyOnDate(LocalDate date, String floorFromRequest) {
         UUID userId = ExecutionContext.get().getUserID();
         String floor = floorFromRequest == null || floorFromRequest.isEmpty()
+                // TODO gRPC
                 ? String.valueOf(userServiceClient.getRoomNumber(userId).charAt(FLOOR_INDEX))
                 : floorFromRequest;
 
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByFloorAndDate(floor, date)
                 .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
 
+        // TODO gRPC
         List<UserResponseDto> usersInRoom = userServiceClient.getAllInRooms(
                 new String[]{kitchenSchedule.getRoomNumber()}
         );
@@ -113,8 +119,13 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     public KitchenScheduleResponseDto getDutyById(UUID id) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findById(id)
                 .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
+        return getKitchenScheduleWithUsers(kitchenSchedule);
+    }
+
+    private KitchenScheduleResponseDto getKitchenScheduleWithUsers(KitchenSchedule kitchenSchedule) {
         List<UserResponseDto> users = List.of();
         try {
+            // TODO gRPC
             users = userServiceClient.getAllInRooms(new String[]{kitchenSchedule.getRoomNumber()});
         } catch (FeignException e) {
             if (e.status() >= 400 && e.status() < 500) {
@@ -165,6 +176,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 //            throw new ServiceException.BadRequest("Вы не можете переставлять местами дежурства из разных расписаний");
 //        }
 
+        // TODO gRPC
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
         char responsibleFloor = roomNumber.charAt(FLOOR_INDEX);
         char roomAFloor = kitchenScheduleA.getRoomNumber().charAt(FLOOR_INDEX);
@@ -182,9 +194,10 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
         LocalDate date = getDateForCheck();
         if (kitchenSchedule.getDate().isBefore(date)) {
-            throw new ServiceException.Conflict("Уже нельзя изменять отметку этого дежурства");
+            throw new ServiceException.Conflict(CONFLICT_CANNOT_EDIT_SCHEDULE_EXCEPTION_MESSAGE);
         }
 
+        // TODO gRPC
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
         char responsibleFloor = roomNumber.charAt(FLOOR_INDEX);
         char roomFloor = kitchenSchedule.getRoomNumber().charAt(FLOOR_INDEX);
@@ -209,9 +222,10 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
         LocalDate date = TimeUtil.now().toLocalDate();
         if (kitchenSchedule.getDate().isBefore(date)) {
-            throw new ServiceException.Conflict("Уже нельзя удалить это дежурство");
+            throw new ServiceException.Conflict(CONFLICT_CANNOT_EDIT_SCHEDULE_EXCEPTION_MESSAGE);
         }
 
+        // TODO gRPC
         String roomNumber = userServiceClient.getRoomNumber(ExecutionContext.get().getUserID());
         String floor = String.valueOf(roomNumber.charAt(FLOOR_INDEX));
         if (roomNumber.charAt(FLOOR_INDEX) != kitchenSchedule.getRoomNumber().charAt(FLOOR_INDEX)) {
