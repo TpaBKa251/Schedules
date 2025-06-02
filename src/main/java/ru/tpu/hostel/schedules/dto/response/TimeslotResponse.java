@@ -4,6 +4,10 @@ import java.util.UUID;
 
 public record TimeslotResponse(
         UUID id,
-        String time
+        String startTime,
+        String endTime,
+        Integer bookingCount,
+        Integer limit,
+        Boolean isBookedByMe
 ) {
 }

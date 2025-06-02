@@ -65,7 +65,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/KitchenScheduleShortResponseDto"
+                  $ref: "#/components/schemas/KitchenScheduleResponseDto"
   /schedules/kitchen/get/on/room/{identifier}:
     get:
       summary: "GET schedules/kitchen/get/on/room/{identifier}"
@@ -297,44 +297,6 @@ components:
           type: "string"
           format: "uuid"
           nullable: true
-    KitchenScheduleShortResponseDto:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        date:
-          type: "string"
-          format: "date"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-        checked:
-          type: "boolean"
-          nullable: true
-    ActiveEventResponseDto:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        startTime:
-          type: "string"
-          format: "date-time"
-          nullable: true
-        endTime:
-          type: "string"
-          format: "date-time"
-          nullable: true
-        status:
-          type: "string"
-          nullable: true
-        type:
-          type: "string"
-          nullable: true
     UserShortResponseDto:
       type: "object"
       properties:
@@ -369,6 +331,27 @@ components:
           nullable: true
           items:
             $ref: "#/components/schemas/UserShortResponseDto"
+    ActiveEventResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        startTime:
+          type: "string"
+          format: "date-time"
+          nullable: true
+        endTime:
+          type: "string"
+          format: "date-time"
+          nullable: true
+        status:
+          type: "string"
+          nullable: true
+        type:
+          type: "string"
+          nullable: true
     TimeslotResponse:
       type: "object"
       properties:
@@ -376,8 +359,22 @@ components:
           type: "string"
           format: "uuid"
           nullable: true
-        time:
+        startTime:
           type: "string"
+          nullable: true
+        endTime:
+          type: "string"
+          nullable: true
+        bookingCount:
+          type: "integer"
+          format: "int32"
+          nullable: true
+        limit:
+          type: "integer"
+          format: "int32"
+          nullable: true
+        isBookedByMe:
+          type: "boolean"
           nullable: true
     ResponsibleEditRequestDto:
       type: "object"

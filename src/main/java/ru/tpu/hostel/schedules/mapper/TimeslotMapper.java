@@ -19,15 +19,15 @@ public class TimeslotMapper {
      * @param timeSlot - сущность слота
      * @return ДТО для ответа
      */
-    public static TimeslotResponse mapTimeSlotToTimeSlotResponse(Timeslot timeSlot) {
+    public static TimeslotResponse mapTimeSlotToTimeSlotResponse(Timeslot timeSlot, boolean isBookedByMe) {
         return new TimeslotResponse(
                 timeSlot.getId(),
-                getTimeSlotTimeRange(timeSlot.getStartTime(), timeSlot.getEndTime())
+                formatTime(timeSlot.getStartTime()),
+                formatTime(timeSlot.getEndTime()),
+                timeSlot.getBookingCount(),
+                timeSlot.getLimit(),
+                isBookedByMe
         );
-    }
-
-    private static String getTimeSlotTimeRange(LocalDateTime start, LocalDateTime end) {
-        return formatTime(start) + " - " + formatTime(end);
     }
 
     private static String formatTime(LocalDateTime dateTime) {

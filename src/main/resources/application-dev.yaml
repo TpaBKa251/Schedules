@@ -18,3 +18,4 @@ rest:
   base-url:
     user-service: http://localhost:8081
     notification-service: http://localhost:8085
+    booking-service: http://localhost:8082

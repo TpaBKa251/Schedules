@@ -11,6 +11,7 @@ import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.schedules.dto.response.TimeslotResponse;
 import ru.tpu.hostel.schedules.entity.EventType;
 import ru.tpu.hostel.schedules.entity.Timeslot;
+import ru.tpu.hostel.schedules.external.rest.booking.BookingClient;
 import ru.tpu.hostel.schedules.mapper.TimeslotMapper;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
@@ -33,6 +34,8 @@ public class TimeslotServiceImpl implements TimeslotService {
             = "Вы можете просматривать и бронировать слоты только на неделю вперед";
 
     private final TimeslotRepository repository;
+
+    private final BookingClient bookingClient;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Override
@@ -74,10 +77,14 @@ public class TimeslotServiceImpl implements TimeslotService {
             throw new ServiceException.BadRequest(BAD_REQUEST_FOR_AVAILABLE_SLOTS_EXCEPTION_MESSAGE);
         }
 
-        UUID userId = ExecutionContext.get().getUserID();
-
+        List<UUID> bookedTimeslotsIds = bookingClient.getAllByStatusShort(ExecutionContext.get().getUserID(), date);
         return repository.findAllAvailableTimeslotsOnDay(bookingType, date, TimeUtil.now()).stream()
-                .map(TimeslotMapper::mapTimeSlotToTimeSlotResponse)
+                .map(timeslot ->
+                        TimeslotMapper.mapTimeSlotToTimeSlotResponse(
+                                timeslot,
+                                bookedTimeslotsIds.contains(timeslot.getId())
+                        )
+                )
                 .toList();
     }
 
