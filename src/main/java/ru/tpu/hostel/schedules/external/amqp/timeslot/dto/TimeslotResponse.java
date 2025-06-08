@@ -22,12 +22,25 @@ public class TimeslotResponse extends ScheduleResponse {
 
     private final EventType type;
 
-    public TimeslotResponse(UUID id, LocalDateTime startTime, LocalDateTime endTime, EventType type) {
+    private final Integer limit;
+
+    private final Integer bookingCount;
+
+    public TimeslotResponse(
+            UUID id,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            EventType type,
+            Integer limit,
+            Integer bookingCount
+    ) {
         super(ResponseStatus.SUCCESS);
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
         this.type = type;
+        this.limit = limit;
+        this.bookingCount = bookingCount;
     }
 
 }

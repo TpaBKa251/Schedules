@@ -10,6 +10,7 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@DynamicUpdate
 public class KitchenSchedule {
 
     @Id

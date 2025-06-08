@@ -13,6 +13,7 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@DynamicUpdate
 public class Responsible {
 
     @Id

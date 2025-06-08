@@ -12,6 +12,7 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@DynamicUpdate
 public class Timeslot {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

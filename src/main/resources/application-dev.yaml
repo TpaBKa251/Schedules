@@ -8,6 +8,8 @@ spring:
 rabbitmq:
   timeslots:
     addresses: localhost:5672
+  notification-service:
+    addresses: localhost:5672
 
 otlp:
   tracing:
@@ -19,3 +21,15 @@ rest:
     user-service: http://localhost:8081
     notification-service: http://localhost:8085
     booking-service: http://localhost:8082
+
+# На будущее
+#server:
+#  port: 8443
+#  http2:
+#    enabled: true
+#  ssl:
+#    enabled: true
+#    key-store-type: PKCS12
+#    key-store: "C:/Users/ilial/iCloudDrive/Documents/Сервис для общежития/SSL/keystore.p12"
+#    key-store-password: changeit
+#    key-alias: myservice

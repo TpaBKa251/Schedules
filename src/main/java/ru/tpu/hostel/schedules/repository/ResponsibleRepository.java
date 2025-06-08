@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.schedules.entity.EventType;
 import ru.tpu.hostel.schedules.entity.Responsible;
 
@@ -22,15 +21,23 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, UUID> 
 
     List<Responsible> findAllByTypeAndDate(EventType type, LocalDate date);
 
-    @Query("select r.user from Responsible r where r.type = :type and r.date = :date")
-    Optional<UUID> findUserByTypeAndDate(@Param("type") EventType type, @Param("date") LocalDate date);
-
-    @Transactional
+    @Query("""
+            SELECT r
+            FROM Responsible r
+            WHERE r.id = :id
+            """
+    )
     @Lock(LockModeType.OPTIMISTIC)
-    @Query("SELECT r FROM Responsible r WHERE r.id = :id")
     Optional<Responsible> findByIdOptimistic(@Param("id") UUID id);
 
-    @Query("SELECT r FROM Responsible r WHERE r.user = :user AND r.date >= :today AND r.date <= :maxDate")
+    @Query("""
+            SELECT r
+            FROM Responsible r
+            WHERE r.user = :user
+                AND r.date >= :today
+                AND r.date <= :maxDate
+            """
+    )
     List<Responsible> findAllActiveResponsible(
             @Param("user") UUID user,
             @Param("maxDate") LocalDate maxDate,

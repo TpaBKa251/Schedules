@@ -42,7 +42,7 @@ public class RabbitTimeslotQueueListener {
      * @param message сообщение, которое пришло
      * @throws IOException если произошла ошибка отправки
      */
-    @RabbitListener(queues = "${queueing.timeslots.queueName}", containerFactory = TIMESLOT_LISTENER)
+    @RabbitListener(queues = "${queueing.book.queueName}", containerFactory = TIMESLOT_LISTENER)
     public void receiveTimeslotMessage(Message message) {
         MessageProperties messageProperties = message.getMessageProperties();
 

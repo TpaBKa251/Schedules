@@ -5,13 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.tpu.hostel.schedules.external.rest.notification.NotificationClient;
-import ru.tpu.hostel.schedules.external.rest.notification.dto.NotificationRequestDto;
-import ru.tpu.hostel.schedules.external.rest.notification.dto.NotificationType;
-import ru.tpu.hostel.schedules.external.rest.user.UserServiceClient;
-import ru.tpu.hostel.schedules.entity.KitchenSchedule;
-import ru.tpu.hostel.schedules.repository.KitchenSchedulesRepository;
 import ru.tpu.hostel.schedules.config.schedule.RoomsConfig;
+import ru.tpu.hostel.schedules.entity.KitchenSchedule;
+import ru.tpu.hostel.schedules.external.rest.user.UserServiceClient;
+import ru.tpu.hostel.schedules.repository.KitchenSchedulesRepository;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -33,7 +30,6 @@ public class NotificationScheduler {
 
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
-    private final NotificationClient notificationClient;
     private final UserServiceClient userServiceClient;
 
     //@Scheduled(cron = "0 0 8 * * *", zone = "Asia/Tomsk")
@@ -70,14 +66,14 @@ public class NotificationScheduler {
         List<UUID> userIds = userServiceClient.getAllInRoomsWithId(rooms.toArray(new String[0]));
 
         for (UUID userId : userIds) {
-            NotificationRequestDto notification = new NotificationRequestDto(
-                    userId,
-                    NotificationType.KITCHEN_SCHEDULE,
-                    "Дежурство на кухне "
-                            + selectDateMessage(date) + " и " + selectDateMessage(date.plusDays(ONE_DAY)),
-                    "Не забудьте про дежурство на кухне: "
-                    + selectDateMessage(date) + " и " + selectDateMessage(date.plusDays(ONE_DAY))
-            );
+//            NotificationRequestDto notification = new NotificationRequestDto(
+//                    userId,
+//                    NotificationType.KITCHEN_SCHEDULE,
+//                    "Дежурство на кухне "
+//                            + selectDateMessage(date) + " и " + selectDateMessage(date.plusDays(ONE_DAY)),
+//                    "Не забудьте про дежурство на кухне: "
+//                    + selectDateMessage(date) + " и " + selectDateMessage(date.plusDays(ONE_DAY))
+//            );
         }
     }
 

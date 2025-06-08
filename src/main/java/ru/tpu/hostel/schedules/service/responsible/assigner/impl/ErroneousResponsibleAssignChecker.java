@@ -12,7 +12,9 @@ import java.util.Set;
 public class ErroneousResponsibleAssignChecker implements ResponsibleAssignChecker {
 
     private static final Set<EventType> APPLICABLE_EVENT_TYPES = Set.of(
-            EventType.KITCHEN
+            EventType.KITCHEN,
+            EventType.HALL,
+            EventType.INTERNET
     );
 
     @Override

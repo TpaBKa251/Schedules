@@ -45,6 +45,8 @@ public class TimeslotGenerator {
 
     private final TimeslotRepository timeSlotRepository;
 
+    private final TimeslotSender timeslotSender;
+
     /**
      * Генерирует слот на последний день (через неделю)
      */
@@ -85,6 +87,7 @@ public class TimeslotGenerator {
         }
 
         timeSlotRepository.saveAll(slots);
+        timeslotSender.send();
     }
 
     /**
@@ -136,6 +139,7 @@ public class TimeslotGenerator {
         }
 
         timeSlotRepository.saveAll(slots);
+        timeslotSender.send();
     }
 
     /**

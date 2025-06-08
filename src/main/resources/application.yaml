@@ -36,6 +36,15 @@ spring:
         default_batch_fetch_size: 10
         connection:
           autocommit: false
+#        cache:
+#          use_second_level_cache: true
+#          use_query_cache: true
+#          region.factory_class: org.hibernate.cache.jcache.internal.JCacheRegionFactory
+#        jakarta.cache:
+#          provider: org.ehcache.jsr107.EhcacheCachingProvider
+#          uri: classpath:ehcache.xml
+#      sharedCache:
+#        mode: ENABLE_SELECTIVE
     open-in-view: false
 
   datasource:
@@ -68,9 +77,15 @@ rabbitmq:
     virtualHost: schedule-service
     addresses: rabbitmq:5672
     connectionTimeout: 6000
+  notification-service:
+    username: notification
+    password: notification
+    virtualHost: notification-service
+    addresses: rabbitmq:5672
+    connectionTimeout: 6000
 
 queueing:
-  timeslots:
+  book:
     exchangeName: schedule-timeslots-exchange
     queueName: schedule-timeslots-queue
     routingKey: schedule-timeslots
@@ -78,6 +93,13 @@ queueing:
     exchangeName: schedule-timeslots-exchange
     queueName: schedule-timeslots-cancel-queue
     routingKey: schedule-timeslots-cancel
+  timeslot:
+    exchange-name: schedule-timeslots-exchange
+    routing-key: schedule-timeslots-get
+  notification-service:
+    send:
+      exchangeName: notification-exchange
+      routingKey: notification-send
 
 otlp:
   tracing:

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
@@ -138,7 +137,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public void swapDuties(SwapRequestDto swapRequestDto) {
         List<KitchenSchedule> schedulesForSwap = kitchenSchedulesRepository.findDutiesForSwap(
                 swapRequestDto.dutyId1(),
@@ -158,7 +157,6 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         kitchenScheduleB.setRoomNumber(tempRoom);
 
         try {
-            kitchenSchedulesRepository.saveAll(List.of(kitchenScheduleA, kitchenScheduleB));
             kitchenSchedulesRepository.flush();
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
@@ -187,7 +185,7 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     public void markDuty(UUID kitchenScheduleId) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(kitchenScheduleId)
                 .orElseThrow(() -> new ServiceException.NotFound(DUTY_NOT_FOUND_EXCEPTION_MESSAGE));
@@ -207,14 +205,13 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
 
         kitchenSchedule.setChecked(!kitchenSchedule.getChecked());
         try {
-            kitchenSchedulesRepository.save(kitchenSchedule);
             kitchenSchedulesRepository.flush();
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
         }
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     @Override
     public void deleteDutyById(UUID id) {
         KitchenSchedule kitchenSchedule = kitchenSchedulesRepository.findByIdForUpdateOptimistic(id)
@@ -245,7 +242,6 @@ public class KitchenSchedulesServiceImpl implements KitchenSchedulesService {
         for (KitchenSchedule schedule : schedulesToShift) {
             schedule.setDate(schedule.getDate().plusDays(1));
         }
-        kitchenSchedulesRepository.saveAll(schedulesToShift);
     }
 
     private LocalDate getDateForCheck() {

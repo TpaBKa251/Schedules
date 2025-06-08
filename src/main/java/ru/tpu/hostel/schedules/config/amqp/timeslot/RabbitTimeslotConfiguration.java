@@ -36,11 +36,13 @@ import java.util.Set;
 /**
  * Конфигурация брокера сообщений RabbitMQ для общения с микросервисом броней
  */
+@SuppressWarnings("NullableProblems")
 @Configuration
 @EnableConfigurationProperties({
         RabbitTimeslotProperties.class,
         RabbitBookTimeslotQueueingProperties.class,
         RabbitCancelTimeslotQueueingProperties.class,
+        RabbitScheduleServiceTimeslotQueueingProperties.class
 })
 public class RabbitTimeslotConfiguration {
 
@@ -180,6 +182,45 @@ public class RabbitTimeslotConfiguration {
             @Override
             public boolean isApplicable(Enum<?> amqpMessageType) {
                 return amqpMessageType == TimeslotMessageType.BOOK_REPLY;
+            }
+        };
+    }
+
+    @Bean
+    public AmqpMessagingConfig timslotsAmqpMessagingConfig(
+            @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+            @Qualifier(TIMESLOT_MESSAGE_CONVERTER) MessageConverter messageConverter,
+            RabbitScheduleServiceTimeslotQueueingProperties properties
+    ) {
+        return new AmqpMessagingConfig() {
+            @Override
+            public RabbitTemplate rabbitTemplate() {
+                RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+                rabbitTemplate.setMessageConverter(messageConverter);
+                rabbitTemplate.setExchange(properties.exchangeName());
+                rabbitTemplate.setRoutingKey(properties.routingKey());
+                rabbitTemplate.setChannelTransacted(true);
+                rabbitTemplate.setObservationEnabled(true);
+                return rabbitTemplate;
+            }
+
+            @Override
+            public MessageProperties messageProperties() {
+                return MessagePropertiesBuilder.newInstance()
+                        .setPriority(10)
+                        .setDeliveryMode(MessageDeliveryMode.PERSISTENT)
+                        .setContentType(MessageProperties.CONTENT_TYPE_JSON)
+                        .build();
+            }
+
+            @Override
+            public Set<Microservice> receivingMicroservices() {
+                return Set.of(Microservice.BOOKING);
+            }
+
+            @Override
+            public boolean isApplicable(Enum<?> amqpMessageType) {
+                return amqpMessageType == TimeslotMessageType.TIMESLOTS;
             }
         };
     }

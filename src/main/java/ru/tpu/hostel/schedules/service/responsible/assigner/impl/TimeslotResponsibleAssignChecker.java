@@ -2,12 +2,14 @@ package ru.tpu.hostel.schedules.service.responsible.assigner.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.schedules.dto.request.ResponsibleSetRequestDto;
 import ru.tpu.hostel.schedules.entity.EventType;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.responsible.assigner.ResponsibleAssignChecker;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Service
@@ -15,16 +17,20 @@ import java.util.Set;
 public class TimeslotResponsibleAssignChecker implements ResponsibleAssignChecker {
 
     private static final Set<EventType> APPLICABLE_EVENT_TYPES = Set.of(
-            EventType.HALL,
-            EventType.INTERNET,
             EventType.GYM
     );
 
     private final TimeslotRepository timeSlotRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public void canAssignResponsible(ResponsibleSetRequestDto responsibleSetRequestDto) {
-        if (!timeSlotRepository.existsByTypeAndDate(responsibleSetRequestDto.type(), responsibleSetRequestDto.date())) {
+        LocalDateTime dayStart = responsibleSetRequestDto.date().atStartOfDay();
+        if (!timeSlotRepository.existsByTypeAndDate(
+                responsibleSetRequestDto.type(),
+                dayStart,
+                dayStart.plusDays(1)
+        )) {
             throw new ServiceException.Conflict(
                     "Невозможно назначить ответственного по %s на %s, так как нет слотов на день".formatted(
                             responsibleSetRequestDto.type().getEventTypeName(),

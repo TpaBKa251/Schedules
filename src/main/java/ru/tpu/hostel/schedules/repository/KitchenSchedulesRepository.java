@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.tpu.hostel.schedules.entity.KitchenSchedule;
 
@@ -116,12 +115,10 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LocalDate date
     );
 
-    @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k WHERE k.date = :date AND k.checked = false")
     List<KitchenSchedule> findAllByDateAndUnchecked(@Param("date") LocalDate date);
 
-    @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k WHERE SUBSTRING(k.roomNumber, 1, 1) = :floor " +
             "AND k.date >= :fromDate")
@@ -129,7 +126,6 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             @Param("floor") String floor,
             @Param("fromDate") LocalDate fromDate);
 
-    @Transactional
     @Query(value = """
             SELECT * FROM schedules.kitchen k
             WHERE SUBSTRING(k.room_number from 1 for 1)
@@ -147,13 +143,11 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             LocalDate date
     );
 
-    @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT k FROM KitchenSchedule k")
     List<KitchenSchedule> lockAllTable();
 
     @Modifying
-    @Transactional
     @Query(value = """
             DELETE FROM schedules.kitchen
             WHERE id = :id
@@ -161,12 +155,10 @@ public interface KitchenSchedulesRepository extends JpaRepository<KitchenSchedul
             nativeQuery = true)
     int deleteByIdOnFloor(@Param("id") UUID id, @Param("floor") String floor);
 
-    @Transactional
     @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT k FROM KitchenSchedule k WHERE k.id = :id")
     Optional<KitchenSchedule> findByIdForUpdateOptimistic(@Param("id") UUID id);
 
-    @Transactional
     @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT k FROM KitchenSchedule k WHERE k.id IN (:id1, :id2)")
     List<KitchenSchedule> findDutiesForSwap(@Param("id1") UUID id1, @Param("id2") UUID id2);

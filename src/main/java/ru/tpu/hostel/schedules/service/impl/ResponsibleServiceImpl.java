@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
@@ -122,7 +121,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
 
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     @Override
     public ResponsibleResponseDto editResponsible(
             UUID responsibleId,
@@ -154,7 +153,6 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     private ResponsibleResponseDto editResponsible(Responsible responsible, UUID newUserId) {
         responsible.setUser(newUserId);
         try {
-            responsibleRepository.save(responsible);
             responsibleRepository.flush();
             return responsibleMapper.mapToResponsibleResponseDto(responsible);
         } catch (ObjectOptimisticLockingFailureException e) {
@@ -215,7 +213,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                 .toList();
     }
 
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional
     @Override
     public void deleteResponsible(UUID responsibleId) {
         Responsible responsible = responsibleRepository.findByIdOptimistic(responsibleId)

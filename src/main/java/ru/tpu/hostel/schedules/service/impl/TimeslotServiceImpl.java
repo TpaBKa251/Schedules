@@ -3,7 +3,6 @@ package ru.tpu.hostel.schedules.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
@@ -37,7 +36,7 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     private final BookingClient bookingClient;
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
         Timeslot timeSlot = repository.findAvailableSlotForUpdate(slotId, TimeUtil.now()).orElseThrow(() ->
@@ -46,7 +45,6 @@ public class TimeslotServiceImpl implements TimeslotService {
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() + 1);
         try {
-            repository.save(timeSlot);
             repository.flush();
             return timeSlot;
         } catch (DataIntegrityViolationException e) {
@@ -54,7 +52,7 @@ public class TimeslotServiceImpl implements TimeslotService {
         }
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     @Override
     public void cancelTimeSlot(UUID slotId) {
         Timeslot timeSlot = repository.findSlotForUpdate(slotId).orElseThrow(()
@@ -63,7 +61,6 @@ public class TimeslotServiceImpl implements TimeslotService {
 
         timeSlot.setBookingCount(timeSlot.getBookingCount() - 1);
         try {
-            repository.save(timeSlot);
             repository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new ServiceException.Conflict(SLOT_EMPTY_EXCEPTION_MESSAGE);
@@ -78,7 +75,12 @@ public class TimeslotServiceImpl implements TimeslotService {
         }
 
         List<UUID> bookedTimeslotsIds = bookingClient.getAllByStatusShort(ExecutionContext.get().getUserID(), date);
-        return repository.findAllAvailableTimeslotsOnDay(bookingType, date, TimeUtil.now()).stream()
+        return repository.findAllAvailableTimeslotsOnDay(
+                        bookingType,
+                        date.atStartOfDay().plusDays(1),
+                        TimeUtil.now()
+                )
+                .stream()
                 .map(timeslot ->
                         TimeslotMapper.mapTimeSlotToTimeSlotResponse(
                                 timeslot,

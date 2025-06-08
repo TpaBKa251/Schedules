@@ -19,7 +19,9 @@ public class ScheduleResponseMapper {
                 timeSlot.getId(),
                 timeSlot.getStartTime(),
                 timeSlot.getEndTime(),
-                timeSlot.getType()
+                timeSlot.getType(),
+                timeSlot.getLimit(),
+                timeSlot.getBookingCount()
         );
     }
 }
