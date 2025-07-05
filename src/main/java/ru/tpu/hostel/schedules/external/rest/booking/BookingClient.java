@@ -1,6 +1,7 @@
 package ru.tpu.hostel.schedules.external.rest.booking;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,6 @@ public interface BookingClient {
     @GetMapping("bookings/all/booked/timeslot-id")
     List<UUID> getAllByStatusShort(
             @RequestParam(name = "userId") UUID userId,
-            @RequestParam(name = "date") LocalDate date
+            @RequestParam(name = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     );
 }
