@@ -1,6 +1,7 @@
 package ru.tpu.hostel.schedules.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +17,11 @@ import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TimeslotServiceImpl implements TimeslotService {
@@ -74,7 +77,15 @@ public class TimeslotServiceImpl implements TimeslotService {
             throw new ServiceException.BadRequest(BAD_REQUEST_FOR_AVAILABLE_SLOTS_EXCEPTION_MESSAGE);
         }
 
-        List<UUID> bookedTimeslotsIds = bookingClient.getAllByStatusShort(ExecutionContext.get().getUserID(), date);
+        final List<UUID> bookedTimeslotsIds = new ArrayList<>();
+        try {
+            bookedTimeslotsIds.addAll(
+                    bookingClient.getAllByStatusShort(ExecutionContext.get().getUserID(), date, bookingType)
+            );
+        } catch (Exception e) {
+            log.warn("Не удалось получить забронированные слоты", e);
+        }
+
         return repository.findAllAvailableTimeslotsOnDay(
                         bookingType,
                         date.atStartOfDay().plusDays(1),
