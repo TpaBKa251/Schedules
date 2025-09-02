@@ -16,7 +16,9 @@ import ru.tpu.hostel.schedules.mapper.TimeslotMapper;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
 
+import java.lang.invoke.LambdaConversionException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -86,10 +88,14 @@ public class TimeslotServiceImpl implements TimeslotService {
             log.warn("Не удалось получить забронированные слоты", e);
         }
 
+        LocalDateTime startTime = date == TimeUtil.now().toLocalDate()
+                ? TimeUtil.now()
+                : date.atStartOfDay();
+
         return repository.findAllAvailableTimeslotsOnDay(
                         bookingType,
                         date.atStartOfDay().plusDays(1),
-                        TimeUtil.now()
+                        startTime
                 )
                 .stream()
                 .map(timeslot ->
