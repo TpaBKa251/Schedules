@@ -309,6 +309,12 @@ components:
         middleName:
           type: "string"
           nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
+          type: "string"
+          nullable: true
     KitchenScheduleResponseDto:
       type: "object"
       properties:
@@ -437,5 +443,11 @@ components:
           type: "string"
           nullable: true
         middleName:
+          type: "string"
+          nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
           type: "string"
           nullable: true
