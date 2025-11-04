@@ -50,10 +50,10 @@ public class ResponsibleServiceImpl implements ResponsibleService {
     private static final String FORBIDDEN_EXCEPTION_MESSAGE = "Вы не можете управлять ответственными за ";
 
     private static final UserShortResponseDto EMPTY_USER_SHORT_RESPONSE_DTO
-            = new UserShortResponseDto("", "", "");
+            = new UserShortResponseDto("", "", "", "", "");
 
     private static final UserNameWithIdResponse EMPTY_USER_NAME_WITH_ID_RESPONSE_DTO
-            = new UserNameWithIdResponse(null, "", "", "");
+            = new UserNameWithIdResponse(null, "", "", "", "", "");
 
     private final ResponsibleRepository responsibleRepository;
 
@@ -169,7 +169,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                 .map(userId -> {
                     // TODO gRPC
                     UserNameWithIdResponse user = userServiceClient.getUserByIdShort(userId);
-                    return new UserShortResponseDto(user.firstName(), user.lastName(), user.middleName());
+                    return new UserShortResponseDto(user.firstName(), user.lastName(), user.middleName(), user.tgLink(), user.vkLink());
                 })
                 .orElse(EMPTY_USER_SHORT_RESPONSE_DTO);
     }
