@@ -35,7 +35,7 @@ public class KitchenScheduleMapper {
                 kitchenSchedule.getRoomNumber(),
                 kitchenSchedule.getChecked(),
                 users.stream()
-                        .map(u -> new UserShortResponseDto(u.firstName(), u.lastName(), u.middleName()))
+                        .map(u -> new UserShortResponseDto(u.firstName(), u.lastName(), u.middleName(), u.tgLink(),  u.vkLink()))
                         .toList()
         );
     }

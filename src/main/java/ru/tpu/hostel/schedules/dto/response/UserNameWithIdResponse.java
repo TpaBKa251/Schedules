@@ -6,6 +6,8 @@ public record UserNameWithIdResponse(
         UUID id,
         String firstName,
         String lastName,
-        String middleName
+        String middleName,
+        String tgLink,
+        String vkLink
 ) {
 }

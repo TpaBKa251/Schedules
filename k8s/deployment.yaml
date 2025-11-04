@@ -6,10 +6,7 @@ metadata:
     app: schedulesservice
 spec:
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1         # Максимально количество новых контейнеров, которые могут быть созданы во время обновления
-      maxUnavailable: 0
+    type: Recreate
   selector:
     matchLabels:
       app: schedulesservice

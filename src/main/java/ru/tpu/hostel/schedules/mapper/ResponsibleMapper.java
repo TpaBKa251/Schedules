@@ -19,6 +19,8 @@ public interface ResponsibleMapper {
     @Mapping(target = "firstName", expression = "java(user.firstName() == null ? \"\" : user.firstName())")
     @Mapping(target = "lastName", expression = "java(user.lastName() == null ? \"\" : user.lastName())")
     @Mapping(target = "middleName", expression = "java(user.middleName() == null ? \"\" : user.middleName())")
+    @Mapping(target = "tgLink", expression = "java(user.tgLink() == null ? \"\" : user.tgLink())")
+    @Mapping(target = "vkLink", expression = "java(user.vkLink() == null ? \"\" : user.vkLink())")
     UserNameWithIdResponse mapToUserNameWithIdResponse(
             UUID responsibleId,
             UserNameWithIdResponse user
