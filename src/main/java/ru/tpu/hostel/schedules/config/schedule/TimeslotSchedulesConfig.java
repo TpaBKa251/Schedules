@@ -48,4 +48,11 @@ public class TimeslotSchedulesConfig {
 
         return objectMapper.readValue(new File(filePath).getAbsoluteFile(), TimeslotSchedulesConfig.class);
     }
+
+    public static void loadToFile(String filePath, TimeslotSchedulesConfig timeslotSchedules) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        objectMapper.writeValue(new File(filePath), timeslotSchedules);
+    }
 }

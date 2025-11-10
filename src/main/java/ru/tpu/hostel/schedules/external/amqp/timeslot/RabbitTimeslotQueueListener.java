@@ -37,7 +37,7 @@ public class RabbitTimeslotQueueListener {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     /**
-     * Обрабатывает сообщения из очереди для таймслотов
+     * Обрабатывает сообщения из очереди для временных промежутков
      *
      * @param message сообщение, которое пришло
      * @throws IOException если произошла ошибка отправки
