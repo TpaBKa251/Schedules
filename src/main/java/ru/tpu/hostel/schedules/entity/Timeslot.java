@@ -40,9 +40,15 @@ public class Timeslot {
     @Column(name = "type", nullable = false)
     private EventType type;
 
+    /**
+     * Лимит в количестве человек на один временной промежуток
+     */
     @Column(name = "\"limit\"", nullable = false)
     private Integer limit;
 
+    /**
+     * Количество броней на один временной промежуток
+     */
     @Column(name = "booking_count", nullable = false)
     private Integer bookingCount;
 

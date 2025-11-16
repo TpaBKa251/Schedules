@@ -174,6 +174,7 @@ public class TimeslotGenerator {
 
         while (slotStart.plusMinutes(slotDuration).isBefore(workingEnd)
                 || slotStart.plusMinutes(slotDuration).equals(workingEnd)) {
+
             LocalDateTime slotEnd = slotStart.plusMinutes(slotDuration);
 
             final LocalDateTime finalSlotStart = slotStart;

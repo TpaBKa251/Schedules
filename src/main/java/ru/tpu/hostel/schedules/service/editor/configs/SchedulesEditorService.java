@@ -1,0 +1,9 @@
+package ru.tpu.hostel.schedules.service.editor.configs;
+
+import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
+import ru.tpu.hostel.schedules.dto.request.ChangeSchedulesRequestDto;
+import ru.tpu.hostel.schedules.entity.EventType;
+
+public interface SchedulesEditorService {
+    void editSchedule(ChangeSchedulesRequestDto changeSchedulesRequestDto, EventType eventType);
+}
