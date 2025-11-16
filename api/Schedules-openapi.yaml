@@ -369,6 +369,39 @@ paths:
       responses:
         "204":
           description: No Content
+  /schedules/edit/{eventType}:
+    post:
+      tags:
+      - Редактирование расписаний
+      operationId: editSchedule
+      parameters:
+      - name: kitchenScheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - HALL
+          - INTERNET
+          - GYM
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangeSchedulesRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
 components:
   schemas:
     ResponsibleSetRequestDto:
@@ -396,6 +429,77 @@ components:
       required:
       - date
       - type
+    ChangeSchedulesRequestDto:
+      type: object
+      description: Тело запроса для параметров расписания
+      properties:
+        limit:
+          type: int
+          description: Максимальное количество слотов на время
+        responsible:
+          type: string
+          format: uuid
+          description: id ответственного за указанную организацию
+        workingDays:
+          type: object
+          format: List<String>
+          description: Список дней недели в верхнем регистре на латинице, на которые будет доступна запись
+        workingHours:
+          type: object
+          description: Часы работы
+          properties:
+            start:
+              type: string
+              format: time
+              description: Время начала
+            end:
+              type: string
+              format: time
+              description: Время окончания
+            endNextDay:
+              type: boolean
+              description: Окончание на следующий день
+          required:
+            - start
+            - end
+            - endNextDay
+        slotDurationMinutes:
+          type: string
+          description: Количество минут на перерыв между слотами
+        breaks:
+          type: object
+          description: Перерывы
+          properties:
+            afterSlots:
+              type: integer
+            breakDurationMinutes:
+              type: integer
+          required:
+            - afterSlots
+            - breakDurationMinutes
+        reservedHours:
+          type: object
+          additionalProperties:
+            type: object
+            format: Map<String, List<TimeRange>>
+            items:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: time
+                end:
+                  type: string
+                  format: time
+                endNextDay:
+                  type: boolean
+          description: Зарезервированные дни и часы
+      required:
+        - limit
+        - workingDays
+        - workingHours
+        - slotDurationMinutes
+        - breaks
     ResponsibleResponseDto:
       type: object
       description: Ответ с описанием ответственного на день за ресурс
