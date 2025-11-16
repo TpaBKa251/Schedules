@@ -1,0 +1,53 @@
+{
+  "users": [
+    {
+      "name": "admin",
+      "password": "admin",
+      "tags": "management"
+    },
+    {
+      "name": "schedule",
+      "password": "schedule",
+      "tags": "management"
+    },
+    {
+      "name": "notification",
+      "password": "notification",
+      "tags": "management"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "schedule-service"
+    },
+    {
+      "name": "notification-service"
+    },
+    {
+      "name": "admin-service"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "schedule",
+      "vhost": "schedule-service",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "admin",
+      "vhost": "admin-service",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "notification",
+      "vhost": "notification-service",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}
