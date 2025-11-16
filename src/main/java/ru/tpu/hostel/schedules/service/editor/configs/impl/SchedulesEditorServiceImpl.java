@@ -65,15 +65,13 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
 
         for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
 
-            for (EventType eventType : EventType.values()) {
-                TimeslotSchedulesConfig.Schedule editedSchedule = editConcreteSchedule(
-                        changeSchedulesRequestDto,
-                        schedule,
-                        editedScheduleEventType
-                );
+            TimeslotSchedulesConfig.Schedule editedSchedule = editConcreteSchedule(
+                    changeSchedulesRequestDto,
+                    schedule,
+                    editedScheduleEventType
+            );
 
-                newSchedules.put(eventType.toString().toLowerCase(), editedSchedule);
-            }
+            newSchedules.put(editedSchedule.getType().toLowerCase(), editedSchedule);
         }
         return newSchedules;
     }
