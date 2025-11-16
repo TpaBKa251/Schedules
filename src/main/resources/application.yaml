@@ -114,10 +114,6 @@ rest:
     notification-service: http://notificationservice:8080
     booking-service: http://bookingservice:8080
 
-springdoc:
-  swagger-ui:
-    enabled: true
-
 schedules:
   timeslots:
     path: configs/schedules.json

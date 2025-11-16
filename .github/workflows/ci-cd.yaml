@@ -4,45 +4,32 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**/api/**'
+      - '**/README.md'
+      - '**/.gitignore'
+      - '**/.gitattributes'
+      - '**/.github/workflows/ci-sonarcloud.yml'
+      - '**/.github/workflows/update-api.yml'
+      - '**/docker-compose-api.yml'
 
 jobs:
-  cache:
-    name: Cache dependencies
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
-
   build:
-    name: Build and Tests
+    name: Build
     runs-on: ubuntu-latest
-    needs: cache
     outputs:
       jar-path: ${{ steps.upload.outputs.artifact-path || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
         with:
           java-version: 21
           distribution: 'zulu'
+          cache: gradle
 
       - name: Build with Gradle
         env:
@@ -50,13 +37,33 @@ jobs:
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew clean assemble -x test
 
       - name: Upload built jar as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: app-jar
           path: build/libs/*.jar
+          retention-days: 1
+          compression-level: 0
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Set up JDK 21
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: gradle
+      - name: Run tests
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
+        run: ./gradlew test --no-daemon
 
   dockerized:
     name: Build and run in Docker
@@ -64,75 +71,71 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Download built jar from build job
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Download built jar
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: app-jar
           path: ./build/libs
-
-      - name: Set up Docker Compose
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
+      - name: Run in Docker
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Build Docker image (single build)
-        env:
-          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
-          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
-        run: docker-compose -f docker-compose-test.yml up --build -d
-
-      - name: Wait for services to be healthy
-        run: |
-          echo "Waiting for services to be healthy..."
-          sleep 20
-          docker ps -a
-          docker logs my-app || true
-
-      - name: Stop and remove containers
-        run: docker-compose -f docker-compose-test.yml down
+          docker compose -f docker-compose-test.yml pull --quiet
+          docker compose -f docker-compose-test.yml up -d
+          
+          timeout 30s bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
+          
+          if ! curl -f http://localhost:8080/actuator/health; then
+            echo "Application failed to start within 30 seconds"
+            exit 1
+          fi
+          
+          docker compose -f docker-compose-test.yml down
 
   sonar_analysis:
-    name: SonarQube Analysis
+    name: Sonar
     runs-on: ubuntu-latest
-    needs: dockerized
+    needs: [ tests, dockerized ]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           fetch-depth: 0
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
         with:
           java-version: 21
           distribution: 'zulu'
-      - name: Build and analyze with SonarQube
+          cache: gradle
+      - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
-        run: |
-          chmod +x gradlew
-          ./gradlew build sonarqube --info
+        run: ./gradlew sonar --info
     continue-on-error: true
 
   deploy:
     name: Deploy on Prod
     runs-on: ubuntu-latest
-    needs: dockerized
+    needs: [ dockerized, tests ]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435
 
       - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download built jar from build job
-        uses: actions/download-artifact@v4
+      - name: Download built jar
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: app-jar
           path: ./build/libs
@@ -143,17 +146,17 @@ jobs:
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           IMAGE=ghcr.io/tpabka251/schedulesservice
-          docker build \
+          docker buildx build \
             --build-arg INTERNAL_REPO_LOGIN=${INTERNAL_REPO_LOGIN} \
             --build-arg INTERNAL_REPO_PASSWORD=${INTERNAL_REPO_PASSWORD} \
             -t $IMAGE:latest \
             -t $IMAGE:${{ github.sha }} \
-            .
-          docker push $IMAGE:latest
-          docker push $IMAGE:${{ github.sha }}
+            --cache-from type=registry,ref=$IMAGE:latest \
+            --cache-to type=inline \
+            --push .
 
       - name: Deploy to k3s via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@91f3272fc5907f4699dcf59761eb622a07342f5a
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
@@ -166,4 +169,4 @@ jobs:
             sudo kubectl apply -f k8s/deployment.yaml
             sudo kubectl apply -f k8s/service.yaml
             sudo kubectl rollout restart deployment/schedulesservice
-            sudo kubectl rollout status deployment/schedulesservice
+            sudo kubectl rollout status deployment/schedulesservice -w

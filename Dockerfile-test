@@ -2,7 +2,12 @@ FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 ARG JAR_FILE=build/libs/*.jar
+ARG CONFIGS_ROOMS=configs/rooms.json
+ARG CONFIGS_SCHEDULES=configs/schedules.json
+
 COPY ${JAR_FILE} app.jar
+COPY ${CONFIGS_ROOMS} configs/rooms.json
+COPY ${CONFIGS_SCHEDULES} configs/schedules.json
 
 ARG INTERNAL_REPO_LOGIN
 ARG INTERNAL_REPO_PASSWORD

@@ -33,3 +33,27 @@ rest:
 #    key-store: "C:/Users/ilial/iCloudDrive/Documents/Сервис для общежития/SSL/keystore.p12"
 #    key-store-password: changeit
 #    key-alias: myservice
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    version: OPENAPI_3_1
+    enabled: true
+
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: >
+      function(a, b) {
+        const methodOrder = {
+          'get': '3', 'post': '0', 'put': '1', 
+          'patch': '2', 'delete': '4', 'head': '5', 
+          'options': '6', 'trace': '7'
+        };
+        return methodOrder[b.get("method")].localeCompare(methodOrder[a.get("method")]);
+      }
+    tags-sorter: none
+    display-request-duration: true
