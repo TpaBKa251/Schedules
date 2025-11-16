@@ -73,7 +73,7 @@ jobs:
         run: |
           if [ -f openapi-temp.yaml ]; then
             mkdir -p api
-            mv openapi-temp.yaml api/User-openapi.yaml
+            mv openapi-temp.yaml api/Schedules-openapi.yaml
             echo "OpenAPI spec updated"
           else
             echo "Failed to download OpenAPI spec"

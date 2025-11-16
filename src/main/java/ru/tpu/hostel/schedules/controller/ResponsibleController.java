@@ -1,5 +1,11 @@
 package ru.tpu.hostel.schedules.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,10 +35,29 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/responsibles")
 @RequiredArgsConstructor
+@Tag(name = "Ответственные за ресурс", description = "Эндпоинты для работы с ответственными на день за различные ресурсы")
+@ApiResponse(responseCode = "500", description = "Неизвестная ошибка сервера", content = @Content)
+@ApiResponse(
+        responseCode = "400",
+        description = "Неверный запрос от клиента, нарушение ограничений запроса (тело, параметры)",
+        content = @Content
+)
+@ApiResponse(responseCode = "401", description = "Запрос не авторизован", content = @Content)
 public class ResponsibleController {
 
     private final ResponsibleService responsibleService;
 
+    @Operation(
+            summary = "Создать ответственного",
+            description = "Назначает указанного юзера ответственным за ресурс на указанный день. Если юзер не указан, то берется юзер, отправивший запрос",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Успешное создание (назначение) ответственного"),
+                    @ApiResponse(responseCode = "403", description = "Нет прав управлять ответственными", content = @Content),
+                    @ApiResponse(responseCode = "409", description = "Нельзя назначить ответственного на указанный день, так как нет слотов для записи. Или юзер уже назначен. Или нарушение ограничений БД", content = @Content),
+                    @ApiResponse(responseCode = "501", description = "Неизвестный тип ответственного", content = @Content)
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponsibleResponseDto setResponsible(
@@ -41,14 +66,36 @@ public class ResponsibleController {
         return responsibleService.setResponsible(responsibleSetRequestDto);
     }
 
+    @Operation(
+            summary = "Изменить ответственного",
+            description = "Меняет юзера, который будет ответственным за ресурс на день. Если юзер не указан, то берется юзер, отправивший запрос",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Успешное создание (назначение) ответственного"),
+                    @ApiResponse(responseCode = "403", description = "Нет прав управлять ответственными", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Ответственный не найден", content = @Content),
+                    @ApiResponse(responseCode = "409", description = "Кто-то уже изменил ответственного во время выполнения запроса. Или юзер уже назначен. Или нарушение ограничений БД", content = @Content)
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PatchMapping("{responsibleId}")
     public ResponsibleResponseDto editResponsible(
-            @PathVariable UUID responsibleId,
+            @Parameter(description = "ID ответственного (записи в БД, не юзера)") @PathVariable UUID responsibleId,
             @RequestBody ResponsibleEditRequestDto responsibleEditRequestDto
     ) {
         return responsibleService.editResponsible(responsibleId, responsibleEditRequestDto);
     }
 
+    @Operation(
+            summary = "Получить одного ответственного (для ресурсов, где может быть только один ответственный за день)",
+            description = "Меняет юзера, который будет ответственным за ресурс на день. Если юзер не указан, то берется юзер, отправивший запрос",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Успешное создание (назначение) ответственного"),
+                    @ApiResponse(responseCode = "403", description = "Нет прав управлять ответственными", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Ответственный не найден", content = @Content),
+                    @ApiResponse(responseCode = "409", description = "Кто-то уже изменил ответственного во время выполнения запроса. Или юзер уже назначен. Или нарушение ограничений БД", content = @Content)
+            },
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @GetMapping("/one")
     public UserShortResponseDto getResponsible(
             @RequestParam(name = "date") LocalDate date,
