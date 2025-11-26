@@ -16,6 +16,8 @@ spec:
         app: schedulesservice
     spec:
       automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: "monitoring"  # Прямое указание ноды
       containers:
         - name: schedulesservice
           image: ghcr.io/tpabka251/schedulesservice:latest

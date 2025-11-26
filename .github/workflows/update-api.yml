@@ -53,10 +53,10 @@ jobs:
           ./gradlew bootRun --args='--spring.profiles.active=dev' &
           APP_PID=$!
           
-          timeout 30s bash -c 'until curl -f http://localhost:8084/actuator/health; do sleep 2; done'
+          timeout 60s bash -c 'until curl -f http://localhost:8084/actuator/health; do sleep 2; done'
           
           if ! curl -f http://localhost:8084/actuator/health; then
-            echo "Application failed to start within 45 seconds"
+            echo "Application failed to start within 60 seconds"
             exit 1
           fi
           
