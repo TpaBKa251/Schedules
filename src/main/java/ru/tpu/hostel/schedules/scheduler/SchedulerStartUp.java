@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.tpu.hostel.internal.common.logging.LogFilter;
+import ru.tpu.hostel.internal.utils.LogFilter;
 
 @Configuration
 @RequiredArgsConstructor
