@@ -1,7 +1,14 @@
 package ru.tpu.hostel.schedules.scheduler;
 
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -43,85 +50,49 @@ public class TimeslotGenerator {
 
     private static final int ONE_DAY = 1;
 
+    private static final String SCOPE_NAME = "ru.tpu.hostel.schedules.scheduler.TimeslotGenerator";
+
     private final TimeslotRepository timeSlotRepository;
 
     private final TimeslotSender timeslotSender;
+
+    private final OpenTelemetry openTelemetry;
 
     /**
      * Генерирует слот на последний день (через неделю)
      */
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
     public void generateSlotsOnLastDay() {
-        TimeslotSchedulesConfig config;
+        Span span = createSpan();
 
-        try {
-            config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
-            if (config == null) {
-                throw new IOException();
+        try (Scope ignored = span.makeCurrent()) {
+            SpanContext context = span.getSpanContext();
+            MDC.put("traceId", context.getTraceId());
+            MDC.put("spanId", context.getSpanId());
+
+            TimeslotSchedulesConfig config;
+
+            try {
+                config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
+                if (config == null) {
+                    throw new IOException();
+                }
+            } catch (IOException e) {
+                log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на последний день).", e);
+                span.recordException(e);
+                span.setStatus(StatusCode.ERROR, SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на последний день).");
+                return;
             }
-        } catch (IOException e) {
-            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на последний день).", e);
-            return;
-        }
 
-        List<Timeslot> slots = new ArrayList<>();
+            List<Timeslot> slots = new ArrayList<>();
 
-        for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
-            List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
-            Map<String, List<TimeslotSchedulesConfig.TimeRange>> reservedHours = schedule.getReservedHours();
+            for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
+                List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
+                Map<String, List<TimeslotSchedulesConfig.TimeRange>> reservedHours = schedule.getReservedHours();
 
-            LocalDate today = TimeUtil.now().toLocalDate();
+                LocalDate today = TimeUtil.now().toLocalDate();
 
-            LocalDate currentDate = today.plusDays(WEEK);
-            DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
-
-            if (workingDays.contains(currentDayOfWeek)) {
-                List<Timeslot> dailySlots = generateSlotsOnDay(
-                        currentDate,
-                        reservedHours.get(currentDayOfWeek.name()),
-                        schedule
-                );
-
-                slots.addAll(dailySlots);
-            }
-        }
-
-        timeSlotRepository.saveAll(slots);
-        timeslotSender.send();
-    }
-
-    /**
-     * Генерирует слоты на неделю или добавляет недостающие
-     */
-    public void generateSlotsForWeek() {
-        TimeslotSchedulesConfig config;
-
-        try {
-            config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
-            if (config == null) {
-                throw new IOException();
-            }
-        } catch (IOException e) {
-            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на неделю/недостающие).", e);
-            return;
-        }
-
-        List<Timeslot> slots = new ArrayList<>();
-        LocalDate endOfWeek = TimeUtil.now().toLocalDate().plusDays(WEEK_PLUS_ONE_DAY);
-
-        for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
-            List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
-            Map<String, List<TimeslotSchedulesConfig.TimeRange>> reservedHours = schedule.getReservedHours();
-
-            Timeslot lastSlot = timeSlotRepository.findLastByType(EventType.valueOf(schedule.getType()))
-                    .orElse(null);
-
-            LocalDate currentDate
-                    = (lastSlot == null || lastSlot.getStartTime().toLocalDate().isBefore(TimeUtil.now().toLocalDate()))
-                    ? TimeUtil.now().toLocalDate()
-                    : lastSlot.getStartTime().toLocalDate().plusDays(ONE_DAY);
-
-            while (currentDate.isBefore(endOfWeek)) {
+                LocalDate currentDate = today.plusDays(WEEK);
                 DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
 
                 if (workingDays.contains(currentDayOfWeek)) {
@@ -133,13 +104,89 @@ public class TimeslotGenerator {
 
                     slots.addAll(dailySlots);
                 }
-
-                currentDate = currentDate.plusDays(ONE_DAY);
             }
-        }
 
-        timeSlotRepository.saveAll(slots);
-        timeslotSender.send();
+            timeSlotRepository.saveAll(slots);
+            timeslotSender.send();
+
+            span.setStatus(StatusCode.OK);
+        } catch (Exception e) {
+            span.recordException(e);
+            span.setStatus(StatusCode.ERROR);
+        } finally {
+            MDC.clear();
+            span.end();
+        }
+    }
+
+    /**
+     * Генерирует слоты на неделю или добавляет недостающие
+     */
+    public void generateSlotsForWeek() {
+        Span span = createSpan();
+
+        try (Scope ignored = span.makeCurrent()) {
+            SpanContext context = span.getSpanContext();
+            MDC.put("traceId", context.getTraceId());
+            MDC.put("spanId", context.getSpanId());
+
+            TimeslotSchedulesConfig config;
+
+            try {
+                config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
+                if (config == null) {
+                    throw new IOException();
+                }
+            } catch (IOException e) {
+                log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на неделю/недостающие).", e);
+                span.recordException(e);
+                span.setStatus(StatusCode.ERROR, SCHEDULE_MAPPING_ERROR_LOG_MESSAGE + " (на неделю/недостающие).");
+                return;
+            }
+
+            List<Timeslot> slots = new ArrayList<>();
+            LocalDate endOfWeek = TimeUtil.now().toLocalDate().plusDays(WEEK_PLUS_ONE_DAY);
+
+            for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
+                List<DayOfWeek> workingDays = parseWorkingDays(schedule.getWorkingDays());
+                Map<String, List<TimeslotSchedulesConfig.TimeRange>> reservedHours = schedule.getReservedHours();
+
+                Timeslot lastSlot = timeSlotRepository.findLastByType(EventType.valueOf(schedule.getType()))
+                        .orElse(null);
+
+                LocalDate currentDate
+                        = (lastSlot == null || lastSlot.getStartTime().toLocalDate().isBefore(TimeUtil.now().toLocalDate()))
+                        ? TimeUtil.now().toLocalDate()
+                        : lastSlot.getStartTime().toLocalDate().plusDays(ONE_DAY);
+
+                while (currentDate.isBefore(endOfWeek)) {
+                    DayOfWeek currentDayOfWeek = currentDate.getDayOfWeek();
+
+                    if (workingDays.contains(currentDayOfWeek)) {
+                        List<Timeslot> dailySlots = generateSlotsOnDay(
+                                currentDate,
+                                reservedHours.get(currentDayOfWeek.name()),
+                                schedule
+                        );
+
+                        slots.addAll(dailySlots);
+                    }
+
+                    currentDate = currentDate.plusDays(ONE_DAY);
+                }
+            }
+
+            timeSlotRepository.saveAll(slots);
+            timeslotSender.send();
+
+            span.setStatus(StatusCode.OK);
+        } catch (Exception e) {
+            span.recordException(e);
+            span.setStatus(StatusCode.ERROR);
+        } finally {
+            MDC.clear();
+            span.end();
+        }
     }
 
     /**
@@ -260,4 +307,12 @@ public class TimeslotGenerator {
                 .map(day -> DayOfWeek.valueOf(day.toUpperCase()))
                 .toList();
     }
+
+    private Span createSpan() {
+        return openTelemetry.getTracer(SCOPE_NAME)
+                .spanBuilder("Generate timeslots")
+                .setSpanKind(SpanKind.INTERNAL)
+                .startSpan();
+    }
+
 }

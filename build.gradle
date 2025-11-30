@@ -60,7 +60,7 @@ sonarqube {
 }
 
 ext {
-    set('internalLibraryVersion', "1.4.1")
+    set('internalLibraryVersion', "1.5.5")
 }
 
 dependencies {
@@ -86,7 +86,6 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:11.17.2'
     implementation 'org.flywaydb:flyway-database-postgresql:11.17.2'
     implementation 'org.ehcache:ehcache:3.10.8:jakarta'
-    implementation 'org.hibernate:hibernate-jcache:6.6.15.Final'
 
     // Доки
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
@@ -106,11 +105,13 @@ dependencies {
     implementation 'org.springframework.security:spring-security-crypto:6.5.0'
 
     // Наблюдение (трассировка, метрики, экспорт)
-    implementation 'io.micrometer:micrometer-tracing-bridge-otel:1.6.0'
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.49.0'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.16.0'
     implementation 'com.github.loki4j:loki-logback-appender:1.5.2'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
+    implementation 'io.opentelemetry.contrib:opentelemetry-samplers:1.49.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:1.49.0'
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc:2.22.0-alpha'
 
     // Cache
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'

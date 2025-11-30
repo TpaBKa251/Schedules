@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Tracer;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.Binding;
@@ -27,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.tpu.hostel.internal.config.amqp.AmqpMessagingConfig;
+import ru.tpu.hostel.internal.config.amqp.TracedConnectionFactory;
 import ru.tpu.hostel.internal.config.amqp.interceptor.AmqpMessageReceiveInterceptor;
 import ru.tpu.hostel.internal.external.amqp.Microservice;
 import ru.tpu.hostel.schedules.external.amqp.timeslot.TimeslotMessageType;
@@ -65,14 +65,17 @@ public class RabbitTimeslotConfiguration {
     }
 
     @Bean(TIMESLOT_CONNECTION_FACTORY)
-    public ConnectionFactory timeslotQueueConnectionFactory(RabbitTimeslotProperties properties) {
+    public ConnectionFactory timeslotQueueConnectionFactory(
+            RabbitTimeslotProperties properties,
+            OpenTelemetry openTelemetry
+    ) {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
         connectionFactory.setUsername(properties.username());
         connectionFactory.setPassword(properties.password());
         connectionFactory.setVirtualHost(properties.virtualHost());
         connectionFactory.setAddresses(properties.addresses());
         connectionFactory.setConnectionTimeout((int) properties.connectionTimeout().toMillis());
-        return connectionFactory;
+        return new TracedConnectionFactory(connectionFactory, openTelemetry);
     }
 
     @Bean(TIMESLOT_RABBIT_TEMPLATE)
@@ -135,7 +138,6 @@ public class RabbitTimeslotConfiguration {
     @Bean(TIMESLOT_LISTENER)
     public SimpleRabbitListenerContainerFactory timeslotQueueListener(
             @Qualifier(TIMESLOT_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
-            Tracer tracer,
             OpenTelemetry openTelemetry
     ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
@@ -143,7 +145,7 @@ public class RabbitTimeslotConfiguration {
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setDefaultRequeueRejected(false);
         factory.setConnectionFactory(connectionFactory);
-        factory.setAdviceChain(new AmqpMessageReceiveInterceptor(tracer, openTelemetry));
+        factory.setAdviceChain(new AmqpMessageReceiveInterceptor(openTelemetry));
         return factory;
     }
 

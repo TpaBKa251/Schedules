@@ -2,7 +2,14 @@ package ru.tpu.hostel.schedules.scheduler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,25 +29,45 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KitchenScheduleGenerator {
 
+    private static final String SCOPE_NAME = "ru.tpu.hostel.schedules.scheduler.KitchenScheduleGenerator";
+
     @Value("${schedules.kitchen.path}")
     private String filePath;
 
     private final KitchenSchedulesRepository kitchenSchedulesRepository;
 
+    private final OpenTelemetry openTelemetry;
+
     @Scheduled(cron = "0 0 12 * * *", zone = "Asia/Tomsk")
     @Transactional
     public void handleMissedSchedules() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
+        Span span = createSpan("Handle missed kitchen duties");
 
-        List<KitchenSchedule> missedSchedules = kitchenSchedulesRepository
-                .findAllByDateAndUnchecked(yesterday);
+        try (Scope ignored = span.makeCurrent()) {
+            SpanContext context = span.getSpanContext();
+            MDC.put("traceId", context.getTraceId());
+            MDC.put("spanId", context.getSpanId());
 
-        for (KitchenSchedule missedSchedule : missedSchedules) {
-            String roomNumber = missedSchedule.getRoomNumber();
-            String floor = String.valueOf(roomNumber.charAt(0));
+            LocalDate yesterday = LocalDate.now().minusDays(1);
 
-            // Переносим все дежурства, включая пропущенное, на следующий день
-            shiftFloorSchedules(floor, yesterday);
+            List<KitchenSchedule> missedSchedules = kitchenSchedulesRepository
+                    .findAllByDateAndUnchecked(yesterday);
+
+            for (KitchenSchedule missedSchedule : missedSchedules) {
+                String roomNumber = missedSchedule.getRoomNumber();
+                String floor = String.valueOf(roomNumber.charAt(0));
+
+                // Переносим все дежурства, включая пропущенное, на следующий день
+                shiftFloorSchedules(floor, yesterday);
+            }
+
+            span.setStatus(StatusCode.OK);
+        } catch (Exception e) {
+            span.recordException(e);
+            span.setStatus(StatusCode.ERROR);
+        } finally {
+            MDC.clear();
+            span.end();
         }
     }
 
@@ -55,51 +82,76 @@ public class KitchenScheduleGenerator {
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tomsk")
     @Transactional
     public void checkSchedules() {
-        kitchenSchedulesRepository.lockAllTable();
-        for (int i = 2; i <= 5; i++) {
-            LocalDate lastDate = kitchenSchedulesRepository.findLastDateOfScheduleByFloor(i).orElse(null);
-            Integer lastNumber = kitchenSchedulesRepository.findLastNumberOfScheduleByFloor(i).orElse(null);
+        Span span = createSpan("Check/generate kitchen schedule");
 
-            if (lastDate == null || lastDate.isEqual(TimeUtil.now().toLocalDate().plusDays(2))) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.registerModule(new JavaTimeModule());
+        try (Scope ignored = span.makeCurrent()) {
+            SpanContext context = span.getSpanContext();
+            MDC.put("traceId", context.getTraceId());
+            MDC.put("spanId", context.getSpanId());
 
-                RoomsConfig roomsConfig;
+            kitchenSchedulesRepository.lockAllTable();
+            for (int i = 2; i <= 5; i++) {
+                LocalDate lastDate = kitchenSchedulesRepository.findLastDateOfScheduleByFloor(i).orElse(null);
+                Integer lastNumber = kitchenSchedulesRepository.findLastNumberOfScheduleByFloor(i).orElse(null);
 
-                try {
-                    roomsConfig = objectMapper.readValue(new File(filePath), RoomsConfig.class);
-                } catch (IOException e) {
-                    throw new RuntimeException("Не удалось загрузить список комнат", e);
+                if (lastDate == null || lastDate.isEqual(TimeUtil.now().toLocalDate().plusDays(2))) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.registerModule(new JavaTimeModule());
+
+                    RoomsConfig roomsConfig;
+
+                    try {
+                        roomsConfig = objectMapper.readValue(new File(filePath), RoomsConfig.class);
+                    } catch (IOException e) {
+                        span.recordException(e);
+                        span.setStatus(StatusCode.ERROR, "Не удалось загрузить список комнат");
+                        return;
+                    }
+
+                    List<String> rooms = roomsConfig.toMap().get(String.valueOf(i));
+                    List<KitchenSchedule> schedules = new ArrayList<>();
+
+                    LocalDate scheduleDate = lastDate == null
+                            ? TimeUtil.now().toLocalDate()
+                            : TimeUtil.now().toLocalDate().plusDays(3);
+
+                    for (String room : rooms) {
+                        KitchenSchedule kitchenSchedule = new KitchenSchedule();
+
+                        kitchenSchedule.setRoomNumber(room);
+                        kitchenSchedule.setDate(scheduleDate);
+                        kitchenSchedule.setScheduleNumber(lastNumber == null ? 1 : lastNumber + 1);
+                        kitchenSchedule.setChecked(false);
+                        schedules.add(kitchenSchedule);
+
+                        scheduleDate = scheduleDate.plusDays(1);
+                    }
+
+                    kitchenSchedulesRepository.saveAll(schedules);
                 }
 
-                List<String> rooms = roomsConfig.toMap().get(String.valueOf(i));
-                List<KitchenSchedule> schedules = new ArrayList<>();
+                LocalDate date = kitchenSchedulesRepository.findDateByRoomNumber("202").orElse(null);
 
-                LocalDate scheduleDate = lastDate == null
-                        ? TimeUtil.now().toLocalDate()
-                        : TimeUtil.now().toLocalDate().plusDays(3);
-
-                for (String room : rooms) {
-                    KitchenSchedule kitchenSchedule = new KitchenSchedule();
-
-                    kitchenSchedule.setRoomNumber(room);
-                    kitchenSchedule.setDate(scheduleDate);
-                    kitchenSchedule.setScheduleNumber(lastNumber == null ? 1 : lastNumber + 1);
-                    kitchenSchedule.setChecked(false);
-                    schedules.add(kitchenSchedule);
-
-                    scheduleDate = scheduleDate.plusDays(1);
+                if (date != null && TimeUtil.now().toLocalDate().equals(date)) {
+                    kitchenSchedulesRepository.deleteAllByDateLessThan(date.minusDays(2));
                 }
-
-                kitchenSchedulesRepository.saveAll(schedules);
             }
 
-            LocalDate date = kitchenSchedulesRepository.findDateByRoomNumber("202").orElse(null);
-
-            if (date != null && TimeUtil.now().toLocalDate().equals(date)) {
-                kitchenSchedulesRepository.deleteAllByDateLessThan(date.minusDays(2));
-            }
+            span.setStatus(StatusCode.OK);
+        } catch (Exception e) {
+            span.recordException(e);
+            span.setStatus(StatusCode.ERROR);
+        } finally {
+            MDC.clear();
+            span.end();
         }
+    }
+
+    private Span createSpan(String spanName) {
+        return openTelemetry.getTracer(SCOPE_NAME)
+                .spanBuilder(spanName)
+                .setSpanKind(SpanKind.INTERNAL)
+                .startSpan();
     }
 
 }
