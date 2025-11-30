@@ -16,7 +16,6 @@ import ru.tpu.hostel.schedules.mapper.TimeslotMapper;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
 
-import java.lang.invoke.LambdaConversionException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
