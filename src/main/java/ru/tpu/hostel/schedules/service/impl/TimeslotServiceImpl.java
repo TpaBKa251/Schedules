@@ -110,7 +110,7 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     @Override
     public void deleteTimeSlots(List<UUID> timeSlotIds) {
-        timeSlotIds.forEach(timeslotRepository::deleteById);
+        timeslotRepository.deleteAllById(timeSlotIds);
     }
 
 }

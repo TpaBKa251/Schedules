@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.schedules.dto.response.TimeslotResponse;
 import ru.tpu.hostel.schedules.entity.EventType;
@@ -30,7 +31,7 @@ public class TimeslotController {
     }
 
     @DeleteMapping("/available/timeslot")
-    public void deleteTimeSlot(@PathVariable List<UUID> timeSlotIds)
+    public void deleteTimeSlot(@RequestParam List<UUID> timeSlotIds)
     {
         timeslotService.deleteTimeSlots(timeSlotIds);
     }
