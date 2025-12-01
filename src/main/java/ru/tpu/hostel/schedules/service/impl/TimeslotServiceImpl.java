@@ -16,7 +16,6 @@ import ru.tpu.hostel.schedules.mapper.TimeslotMapper;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.TimeslotService;
 
-import java.lang.invoke.LambdaConversionException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,6 +39,8 @@ public class TimeslotServiceImpl implements TimeslotService {
     private final TimeslotRepository repository;
 
     private final BookingClient bookingClient;
+
+    private final TimeslotRepository timeslotRepository;
 
     @Transactional
     @Override
@@ -105,6 +106,11 @@ public class TimeslotServiceImpl implements TimeslotService {
                         )
                 )
                 .toList();
+    }
+
+    @Override
+    public void deleteTimeSlots(List<UUID> timeSlotIds) {
+        timeslotRepository.deleteAllById(timeSlotIds);
     }
 
 }

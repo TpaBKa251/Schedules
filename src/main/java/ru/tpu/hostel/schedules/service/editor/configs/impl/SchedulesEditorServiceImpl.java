@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
 import ru.tpu.hostel.schedules.dto.request.ChangeSchedulesRequestDto;
 import ru.tpu.hostel.schedules.entity.EventType;
+import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.editor.configs.SchedulesEditorService;
 
 import java.io.IOException;
@@ -17,17 +18,20 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class SchedulesEditorServiceImpl implements SchedulesEditorService {
-    /**
-     * Файл-конфиг расписания для слотов
-     */
-    @Value("${schedules.timeslots.path}")
-    private String schedulesFilePath;
 
     private static final String SCHEDULE_MAPPING_ERROR_LOG_MESSAGE
             = "Ошибка загрузки шаблона расписаний. Редактирование невозможно";
 
     private static final String SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE
             = "Ошибка загрузки шаблона расписаний в файл. Редактирование невозможно";
+
+    private final TimeslotRepository timeslotRepository;
+
+    /**
+     * Файл-конфиг расписания для слотов
+     */
+    @Value("${schedules.timeslots.path}")
+    private String schedulesFilePath;
 
     @Override
     public void editSchedule(ChangeSchedulesRequestDto changeSchedulesRequestDto, EventType editedScheduleEventType) {
