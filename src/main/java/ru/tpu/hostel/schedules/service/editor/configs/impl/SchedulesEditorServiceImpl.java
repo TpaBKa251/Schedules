@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
 import ru.tpu.hostel.schedules.dto.request.ChangeSchedulesRequestDto;
-import ru.tpu.hostel.schedules.dto.request.DeleteTimeSlotsRequestDto;
 import ru.tpu.hostel.schedules.entity.EventType;
 import ru.tpu.hostel.schedules.repository.TimeslotRepository;
 import ru.tpu.hostel.schedules.service.editor.configs.SchedulesEditorService;
@@ -33,11 +32,6 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
      */
     @Value("${schedules.timeslots.path}")
     private String schedulesFilePath;
-
-    @Override
-    public void deleteTimeSlots(DeleteTimeSlotsRequestDto deleteTimeSlotsRequestDto) {
-        deleteTimeSlotsRequestDto.timeSlotIds().forEach(timeslotRepository::deleteById);
-    }
 
     @Override
     public void editSchedule(ChangeSchedulesRequestDto changeSchedulesRequestDto, EventType editedScheduleEventType) {

@@ -34,4 +34,7 @@ public interface TimeslotService {
      */
     List<TimeslotResponse> getAvailableTimeBooking(LocalDate date, EventType bookingType);
 
+    void deleteTimeSlots(List<UUID> timeSlotIds);
+
+
 }
