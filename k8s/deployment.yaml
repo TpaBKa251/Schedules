@@ -22,7 +22,8 @@ spec:
         - name: schedulesservice
           image: ghcr.io/tpabka251/schedulesservice:latest
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           resources:
             requests:
               cpu: "100m"
