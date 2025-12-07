@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
-import ru.tpu.hostel.schedules.dto.request.ChangeSchedulesRequestDto;
+import ru.tpu.hostel.schedules.dto.SchedulesDto;
 import ru.tpu.hostel.schedules.entity.EventType;
-import ru.tpu.hostel.schedules.repository.TimeslotRepository;
+import ru.tpu.hostel.schedules.mapper.ScheduleMapper;
 import ru.tpu.hostel.schedules.service.editor.configs.SchedulesEditorService;
 
 import java.io.IOException;
@@ -25,7 +25,8 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     private static final String SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE
             = "Ошибка загрузки шаблона расписаний в файл. Редактирование невозможно";
 
-    private final TimeslotRepository timeslotRepository;
+    public static final String SCHEDULE_CONFIG_READ_BUT_RETURN_NULL_LOG_MESSAGE
+            = "Файл конфигурации прочитан, но вернул null";
 
     /**
      * Файл-конфиг расписания для слотов
@@ -34,22 +35,12 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     private String schedulesFilePath;
 
     @Override
-    public void editSchedule(ChangeSchedulesRequestDto changeSchedulesRequestDto, EventType editedScheduleEventType) {
+    public void editSchedule(SchedulesDto schedulesDto, EventType editedScheduleEventType) {
 
-        TimeslotSchedulesConfig config;
-
-        try {
-            config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
-            if (config == null) {
-                throw new IOException();
-            }
-        } catch (IOException e) {
-            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE, e);
-            return;
-        }
+        TimeslotSchedulesConfig config = getTimeSlotSchedulesConfig();
 
         Map<String, TimeslotSchedulesConfig.Schedule> newSchedules
-                = getEditedSchedulesMap(changeSchedulesRequestDto, editedScheduleEventType, config);
+                = getEditedSchedulesMap(schedulesDto, editedScheduleEventType, config);
 
         config.setSchedules(newSchedules);
 
@@ -60,8 +51,16 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
         }
     }
 
+    @Override
+    public SchedulesDto getSchedule(EventType eventType) {
+
+        Map<String, TimeslotSchedulesConfig.Schedule> schedules = getTimeSlotSchedulesConfig().getSchedules();
+
+        return ScheduleMapper.mapToSchedulesDto(schedules.get(eventType.toString()));
+    }
+
     private Map<String, TimeslotSchedulesConfig.Schedule> getEditedSchedulesMap(
-            ChangeSchedulesRequestDto changeSchedulesRequestDto,
+            SchedulesDto schedulesDto,
             EventType editedScheduleEventType,
             TimeslotSchedulesConfig config
     ) {
@@ -70,7 +69,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
         for (TimeslotSchedulesConfig.Schedule schedule : config.getSchedules().values()) {
 
             TimeslotSchedulesConfig.Schedule editedSchedule = editConcreteSchedule(
-                    changeSchedulesRequestDto,
+                    schedulesDto,
                     schedule,
                     editedScheduleEventType
             );
@@ -81,7 +80,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     }
 
     private TimeslotSchedulesConfig.Schedule editConcreteSchedule(
-            ChangeSchedulesRequestDto changeSchedulesRequestDto,
+            SchedulesDto schedulesDto,
             TimeslotSchedulesConfig.Schedule schedule,
             EventType editedScheduleEventType
     ) {
@@ -90,14 +89,32 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
             return schedule;
         }
 
-        schedule.setLimit(changeSchedulesRequestDto.limit());
-        schedule.setResponsible(changeSchedulesRequestDto.responsible());
-        schedule.setWorkingDays(changeSchedulesRequestDto.workingDays());
-        schedule.setWorkingHours(changeSchedulesRequestDto.workingHours());
-        schedule.setSlotDurationMinutes(changeSchedulesRequestDto.slotDurationMinutes());
-        schedule.setBreaks(changeSchedulesRequestDto.breaks());
-        schedule.setReservedHours(changeSchedulesRequestDto.reservedHours());
+        schedule.setLimit(schedulesDto.limit());
+        schedule.setResponsible(schedulesDto.responsible());
+        schedule.setWorkingDays(schedulesDto.workingDays());
+        schedule.setWorkingHours(schedulesDto.workingHours());
+        schedule.setSlotDurationMinutes(schedulesDto.slotDurationMinutes());
+        schedule.setBreaks(schedulesDto.breaks());
+        schedule.setReservedHours(schedulesDto.reservedHours());
 
         return schedule;
+    }
+
+    private TimeslotSchedulesConfig getTimeSlotSchedulesConfig() {
+        TimeslotSchedulesConfig config;
+
+        try {
+            config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
+
+            if (config == null) {
+                throw new IllegalStateException(SCHEDULE_CONFIG_READ_BUT_RETURN_NULL_LOG_MESSAGE);
+            }
+
+            return config;
+
+        } catch (Exception e) {
+            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE, e);
+            throw new RuntimeException(e);
+        }
     }
 }
