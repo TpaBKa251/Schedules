@@ -1,4 +1,4 @@
-package ru.tpu.hostel.schedules.dto.request;
+package ru.tpu.hostel.schedules.dto;
 
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
 
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public record ChangeSchedulesRequestDto(
+public record SchedulesDto(
         int limit,
         UUID responsible,
         List<String> workingDays,
