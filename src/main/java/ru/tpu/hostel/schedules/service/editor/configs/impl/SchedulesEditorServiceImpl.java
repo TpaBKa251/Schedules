@@ -26,9 +26,6 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     private static final String SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE
             = "Ошибка загрузки шаблона расписаний в файл. Редактирование невозможно";
 
-    public static final String SCHEDULE_CONFIG_READ_BUT_RETURN_NULL_LOG_MESSAGE
-            = "Файл конфигурации прочитан, но вернул null";
-
     private final ScheduleMapper scheduleMapper;
 
     /**
@@ -106,7 +103,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     private TimeslotSchedulesConfig getTimeSlotSchedulesConfig() {
         try {
             return TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ServiceException.InternalServerError(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE);
         }
     }
