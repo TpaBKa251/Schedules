@@ -12,32 +12,6 @@ tags:
 - name: Ответственные за ресурс
   description: Эндпоинты для работы с ответственными на день за различные ресурсы
 paths:
-  /schedules/edit/{eventType}:
-    post:
-      tags:
-      - schedule-editor-controller
-      operationId: editSchedule
-      parameters:
-      - name: eventType
-        in: path
-        required: true
-        schema:
-          type: string
-          enum:
-          - HALL
-          - INTERNET
-          - GYM
-          - KITCHEN
-          - SOOP
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ChangeSchedulesRequestDto"
-        required: true
-      responses:
-        "200":
-          description: OK
   /responsibles:
     post:
       tags:
@@ -126,6 +100,32 @@ paths:
       responses:
         "204":
           description: No Content
+  /schedules/edit/{eventType}:
+    patch:
+      tags:
+      - schedule-editor-controller
+      operationId: editSchedule
+      parameters:
+      - name: eventType
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - HALL
+          - INTERNET
+          - GYM
+          - KITCHEN
+          - SOOP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchedulesDto"
+        required: true
+      responses:
+        "204":
+          description: No Content
   /responsibles/{responsibleId}:
     patch:
       tags:
@@ -171,6 +171,30 @@ paths:
           description: Запрос не авторизован
       security:
       - bearerAuth: []
+  /schedules/{eventType}:
+    get:
+      tags:
+      - schedule-editor-controller
+      operationId: getSchedule
+      parameters:
+      - name: eventType
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+          - HALL
+          - INTERNET
+          - GYM
+          - KITCHEN
+          - SOOP
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchedulesDto"
   /schedules/kitchen:
     get:
       tags:
@@ -214,7 +238,7 @@ paths:
     get:
       tags:
       - kitchen-schedule-controller
-      operationId: getSchedule
+      operationId: getSchedule_1
       parameters:
       - name: floor
         in: query
@@ -414,50 +438,6 @@ paths:
           description: OK
 components:
   schemas:
-    BreakConfig:
-      type: object
-      properties:
-        afterSlots:
-          type: integer
-          format: int32
-        breakDurationMinutes:
-          type: integer
-          format: int32
-    ChangeSchedulesRequestDto:
-      type: object
-      properties:
-        limit:
-          type: integer
-          format: int32
-        responsible:
-          type: string
-          format: uuid
-        workingDays:
-          type: array
-          items:
-            type: string
-        workingHours:
-          $ref: "#/components/schemas/TimeRange"
-        slotDurationMinutes:
-          type: integer
-          format: int32
-        breaks:
-          $ref: "#/components/schemas/BreakConfig"
-        reservedHours:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              $ref: "#/components/schemas/TimeRange"
-    TimeRange:
-      type: object
-      properties:
-        start:
-          type: string
-        end:
-          type: string
-        endNextDay:
-          type: boolean
     ResponsibleSetRequestDto:
       type: object
       description: Тело запроса для назначения ответственного на день за ресурс
@@ -516,6 +496,50 @@ components:
       required:
       - dutyId1
       - dutyId2
+    BreakConfig:
+      type: object
+      properties:
+        afterSlots:
+          type: integer
+          format: int32
+        breakDurationMinutes:
+          type: integer
+          format: int32
+    SchedulesDto:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+        responsible:
+          type: string
+          format: uuid
+        workingDays:
+          type: array
+          items:
+            type: string
+        workingHours:
+          $ref: "#/components/schemas/TimeRange"
+        slotDurationMinutes:
+          type: integer
+          format: int32
+        breaks:
+          $ref: "#/components/schemas/BreakConfig"
+        reservedHours:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/TimeRange"
+    TimeRange:
+      type: object
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+        endNextDay:
+          type: boolean
     ResponsibleEditRequestDto:
       type: object
       description: Тело запроса изменения ответственного на день за ресурс
