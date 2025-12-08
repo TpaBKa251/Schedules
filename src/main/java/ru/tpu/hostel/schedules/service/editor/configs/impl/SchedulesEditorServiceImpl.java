@@ -56,7 +56,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
 
         Map<String, TimeslotSchedulesConfig.Schedule> schedules = getTimeSlotSchedulesConfig().getSchedules();
 
-        return scheduleMapper.mapToSchedulesDto(schedules.get(eventType.toString()));
+        return scheduleMapper.mapToSchedulesDto(schedules.get(eventType.name().toLowerCase()));
     }
 
     private Map<String, TimeslotSchedulesConfig.Schedule> getEditedSchedulesMap(
@@ -84,8 +84,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
             TimeslotSchedulesConfig.Schedule schedule,
             EventType editedScheduleEventType
     ) {
-        if (!schedule.getType().equals(editedScheduleEventType.toString()))
-        {
+        if (!schedule.getType().equalsIgnoreCase(editedScheduleEventType.toString())) {
             return schedule;
         }
 

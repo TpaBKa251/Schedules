@@ -40,8 +40,6 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     private final BookingClient bookingClient;
 
-    private final TimeslotRepository timeslotRepository;
-
     @Transactional
     @Override
     public Timeslot getTimeslotForBook(UUID slotId) {
@@ -110,7 +108,7 @@ public class TimeslotServiceImpl implements TimeslotService {
 
     @Override
     public void deleteTimeSlots(List<UUID> timeSlotIds) {
-        timeslotRepository.deleteAllById(timeSlotIds);
+        repository.deleteAllById(timeSlotIds);
     }
 
 }
