@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.schedules.config.schedule.TimeslotSchedulesConfig;
 import ru.tpu.hostel.schedules.dto.SchedulesDto;
 import ru.tpu.hostel.schedules.entity.EventType;
@@ -20,13 +21,15 @@ import java.util.Map;
 public class SchedulesEditorServiceImpl implements SchedulesEditorService {
 
     private static final String SCHEDULE_MAPPING_ERROR_LOG_MESSAGE
-            = "Ошибка загрузки шаблона расписаний. Редактирование невозможно";
+            = "Ошибка загрузки шаблона расписаний из файла. Редактирование невозможно";
 
     private static final String SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE
             = "Ошибка загрузки шаблона расписаний в файл. Редактирование невозможно";
 
     public static final String SCHEDULE_CONFIG_READ_BUT_RETURN_NULL_LOG_MESSAGE
             = "Файл конфигурации прочитан, но вернул null";
+
+    private final ScheduleMapper scheduleMapper;
 
     /**
      * Файл-конфиг расписания для слотов
@@ -47,7 +50,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
         try {
             TimeslotSchedulesConfig.loadToFile(schedulesFilePath, config);
         } catch (IOException e) {
-            log.error(SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE, e);
+            throw new ServiceException.InternalServerError(SCHEDULE_MAPPING_TO_FILE_ERROR_LOG_MESSAGE);
         }
     }
 
@@ -56,7 +59,7 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
 
         Map<String, TimeslotSchedulesConfig.Schedule> schedules = getTimeSlotSchedulesConfig().getSchedules();
 
-        return ScheduleMapper.mapToSchedulesDto(schedules.get(eventType.toString()));
+        return scheduleMapper.mapToSchedulesDto(schedules.get(eventType.toString()));
     }
 
     private Map<String, TimeslotSchedulesConfig.Schedule> getEditedSchedulesMap(
@@ -101,20 +104,10 @@ public class SchedulesEditorServiceImpl implements SchedulesEditorService {
     }
 
     private TimeslotSchedulesConfig getTimeSlotSchedulesConfig() {
-        TimeslotSchedulesConfig config;
-
         try {
-            config = TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
-
-            if (config == null) {
-                throw new IllegalStateException(SCHEDULE_CONFIG_READ_BUT_RETURN_NULL_LOG_MESSAGE);
-            }
-
-            return config;
-
+            return TimeslotSchedulesConfig.loadFromFile(schedulesFilePath);
         } catch (Exception e) {
-            log.error(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE, e);
-            throw new RuntimeException(e);
+            throw new ServiceException.InternalServerError(SCHEDULE_MAPPING_ERROR_LOG_MESSAGE);
         }
     }
 }
