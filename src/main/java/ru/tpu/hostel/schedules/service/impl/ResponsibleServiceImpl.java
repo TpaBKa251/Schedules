@@ -198,7 +198,7 @@ public class ResponsibleServiceImpl implements ResponsibleService {
                     UserNameWithIdResponse user = userMap.get(responsible.getUser()) == null
                             ? EMPTY_USER_NAME_WITH_ID_RESPONSE_DTO
                             : userMap.get(responsible.getUser());
-                    return responsibleMapper.mapToUserNameWithIdResponse(responsible.getId(), user);
+                    return responsibleMapper.mapToUserNameWithIdResponse(responsible.getUser(), user);
                 })
                 .toList();
     }
@@ -215,8 +215,8 @@ public class ResponsibleServiceImpl implements ResponsibleService {
 
     @Transactional
     @Override
-    public void deleteResponsible(UUID responsibleId) {
-        Responsible responsible = responsibleRepository.findByIdOptimistic(responsibleId)
+    public void deleteResponsible(UUID userId, EventType type, LocalDate date) {
+        Responsible responsible = responsibleRepository.findByUserTypeDateOptimistic(userId, type, date)
                 .orElseThrow(() -> new ServiceException.NotFound(RESPONSIBLE_NOT_FOUND_EXCEPTION_MESSAGE));
 
         ExecutionContext context = ExecutionContext.get();

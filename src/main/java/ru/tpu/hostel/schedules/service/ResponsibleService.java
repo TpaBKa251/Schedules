@@ -24,6 +24,6 @@ public interface ResponsibleService {
 
     List<ActiveEventResponseDto> getActiveResponsible();
 
-    void deleteResponsible(UUID responsibleId);
+    void deleteResponsible(UUID userId, EventType type, LocalDate date);
 
 }

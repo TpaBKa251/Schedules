@@ -119,8 +119,12 @@ public class ResponsibleController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteResponsible(@RequestParam(name = "responsibleId") UUID responsibleId) {
-        responsibleService.deleteResponsible(responsibleId);
+    public void deleteResponsible(
+            @RequestParam(name = "userId") UUID userId,
+            @RequestParam(name = "type") EventType type,
+            @RequestParam(name = "date") LocalDate date
+    ) {
+        responsibleService.deleteResponsible(userId, type, date);
     }
 
 }

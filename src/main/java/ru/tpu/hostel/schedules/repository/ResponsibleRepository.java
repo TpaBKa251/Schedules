@@ -24,10 +24,19 @@ public interface ResponsibleRepository extends JpaRepository<Responsible, UUID> 
     @Query("""
             SELECT r
             FROM Responsible r
-            WHERE r.id = :id
+            WHERE r.user = :id
+            AND r.type = :type
+            AND r.date = :date
             """
     )
     @Lock(LockModeType.OPTIMISTIC)
+    Optional<Responsible> findByUserTypeDateOptimistic(@Param("id") UUID id, @Param("type") EventType type, @Param("date") LocalDate date);
+
+    @Query("""
+            SELECT r
+            FROM Responsible r
+            WHERE r.id = :id
+            """)
     Optional<Responsible> findByIdOptimistic(@Param("id") UUID id);
 
     @Query("""
