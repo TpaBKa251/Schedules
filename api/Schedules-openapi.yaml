@@ -55,12 +55,29 @@ paths:
       - Ответственные за ресурс
       operationId: deleteResponsible
       parameters:
-      - name: responsibleId
+      - name: userId
         in: query
         required: true
         schema:
           type: string
           format: uuid
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - HALL
+          - INTERNET
+          - GYM
+          - KITCHEN
+          - SOOP
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
       responses:
         "500":
           description: Неизвестная ошибка сервера
